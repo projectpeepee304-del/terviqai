@@ -1,4 +1,4 @@
-import {PageHero,CryptoCards} from "@/components/finance-pages";
+import {CryptoCards} from "@/components/finance-pages";
 import {ArrowUpRight} from "lucide-react";
 import Link from "next/link";
 export const metadata={title:"Cryptocurrency Information",description:"Learn about the six cryptocurrency assets and networks listed in Terviq AI's supplied deposit model."};
