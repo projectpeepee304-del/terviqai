@@ -1,3 +1,3 @@
-import {FAQPage} from "@/components/member-pages";
-export const metadata={title:"Frequently Asked Questions",description:"Find answers about Terviq AI membership, earning opportunities, referrals, withdrawals and agricultural AI."};
-export default function Page(){return <FAQPage/>;}
+import {FinanceFAQ} from "@/components/finance-pages";
+export const metadata={title:"Financial Platform FAQs",description:"Answers about investment plans, deposits, withdrawals, referral commissions, cryptocurrency and Terviq AI."};
+export default function Page(){return <FinanceFAQ/>;}
