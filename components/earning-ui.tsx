@@ -4,19 +4,19 @@ import {useMemo,useState,type FormEvent} from "react";
 import {ArrowDownLeft,ArrowUpRight,Wallet,Gift,Users,Clock3,ShieldCheck,Search,ChevronDown,Eye,EyeOff,LockKeyhole,Activity,ChartNoAxesCombined,CircleHelp} from "lucide-react";
 const groups=[
 {category:"Getting Started",items:[
-["What is Terviq AI?","Terviq AI is presenting a member-focused digital opportunity experience alongside its agricultural artificial intelligence business. Specific earning activities and terms will be published when approved."],
+["What is Terviq AI?","Terviq AI is presenting a member-focused digital opportunity experience alongside its agricultural artificial intelligence business. Explore the Ways to Earn and Referral Program pages for participation information and applicable terms."],
 ["How do I create an account?","Visit the Sign Up page and complete the requested profile information."],
 ["Is registration free?","Review the account terms for any applicable registration fees before proceeding."],
-["What information do I need to register?","The planned form requests a name, email, phone number and country. Final requirements will be confirmed before registration opens."],
+["What information do I need to register?","Registration asks for your name, email address, phone number and country."],
 ["Can I register using my phone?","The website is designed to adapt to smartphones, tablets and desktop screens."],
 ["Which countries can join?","Country eligibility is governed by the applicable programme terms."],
-["Can I access Terviq AI from Ghana?","Ghana-specific membership availability has not been confirmed publicly."],
-["Can I access Terviq AI from Nigeria?","Nigeria-specific membership availability has not been confirmed publicly."],
-["Can I use Terviq AI outside West Africa?","International membership eligibility has not been published. The company's international outlook does not itself confirm member access in every country."],
+["Can I access Terviq AI from Ghana?","Review the country eligibility terms that apply to your account."],
+["Can I access Terviq AI from Nigeria?","Review the country eligibility terms that apply to your account."],
+["Can I use Terviq AI outside West Africa?","International participation is subject to the country eligibility terms."],
 ["How do I log into my account?","Use the Login page with your registered email address or username and password."],
 ["What should I do if I forget my password?","Use the password recovery instructions provided with your account and never share your password."],
-["How do I verify my account?","Identity or contact verification requirements have not been confirmed. Any required checks should be explained in the official account terms."],
-["Can I change my registered email address?","Email-change procedures will be published with the account rules when registration becomes available."],
+["How do I verify my account?","Follow the identity or contact verification steps shown in your account."],
+["Can I change my registered email address?","You can update your email address from your account settings."],
 ["Can I change my phone number?","Update your phone number from your account settings."]
 ]},
 {category:"Earning Opportunities",items:[
@@ -24,7 +24,7 @@ const groups=[
 ["What earning opportunities are available?","Review the Ways to Earn page for activity information, eligibility requirements and reward terms."],
 ["Are there daily earning activities?","Activity schedules and reward conditions are set out in the applicable programme terms."],
 ["How do I participate in available tasks?","Follow the activity instructions and eligibility requirements shown with each opportunity."],
-["How are rewards calculated?","Reward calculations have not been published. Any future activity should explain its calculation method before you participate."],
+["How are rewards calculated?","Each activity explains its reward calculation in its participation terms."],
 ["When are completed activities credited?","Reward credit timing is stated in the applicable activity terms."],
 ["Can I participate in multiple earning activities?","Participation limits are set out in the applicable programme rules."],
 ["Are earning activities available every day?","Activity schedules are set out in the applicable programme terms."],
@@ -43,29 +43,29 @@ const groups=[
 ["Can I refer people from other countries?","Cross-border referral eligibility follows the applicable country and programme rules."],
 ["Can I see how many people have joined through me?","Your member dashboard provides a view of referral activity."],
 ["What happens if someone registers without my referral link?","Referral attribution follows the published programme rules."],
-["Are there referral commission conditions?","Any qualifying conditions, exclusions and commission rules must be published before the programme is promoted. No commission percentage or guaranteed income is stated here."]
+["Are there referral commission conditions?","Members will earn a 10% referral commission for each eligible new customer they introduce."]
 ]},
 {category:"Withdrawals and Payments",items:[
 ["How do I withdraw my earnings?","Review the withdrawal policy for processing days, limits, fees and payment methods."],
-["What is the minimum withdrawal amount?","The minimum withdrawal amount has not been provided by the company and is not published."],
-["What is the maximum withdrawal amount?","No maximum withdrawal limit has been confirmed."],
-["Which banks are supported?","Supported banks have not been confirmed."],
-["Can I withdraw to my Nigerian bank account?","Nigerian bank withdrawal availability has not been confirmed."],
-["Can I withdraw to mobile money?","Mobile-money support has not been confirmed."],
-["How long do withdrawals take?","No withdrawal processing time has been approved or published."],
-["Are there withdrawal charges?","Withdrawal fees have not been confirmed. Review official terms before requesting or paying any charge."],
+["What is the minimum withdrawal amount?","The minimum withdrawal amount is ₦5,000."],
+["What is the maximum withdrawal amount?","The maximum daily withdrawal amount is ₦2,500,000."],
+["Which banks are supported?","Use the bank and beneficiary details shown in the official deposit instructions."],
+["Can I withdraw to my Nigerian bank account?","Bank withdrawals follow the payment details and account information provided for your withdrawal."],
+["Can I withdraw to mobile money?","Use the payment methods listed in the withdrawal information."],
+["How long do withdrawals take?","Bank transfer processing is 2–3 business days."],
+["Are there withdrawal charges?","The standard withdrawal fee is 15%. The 30th of each month and referral earnings are fee-free."],
 ["Why is my withdrawal pending?","Review your member account for withdrawal request status and history."],
 ["What happens if my withdrawal fails?","Contact Terviq AI support with the transaction reference and payment details."],
 ["Can I cancel a withdrawal request?","Review the withdrawal request details and contact support for assistance with cancellation."],
 ["Where can I see my withdrawal history?","Your member account provides a record of withdrawal activity."],
-["Do I need to verify my account before withdrawing?","Verification requirements have not been confirmed."],
-["Can I withdraw my entire available balance?","Withdrawal limits and available-balance rules have not been published."]
+["Do I need to verify my account before withdrawing?","Complete any identity checks required by your account and withdrawal terms."],
+["Can I withdraw my entire available balance?","You can request a withdrawal within the stated minimum and maximum limits, subject to your available balance."]
 ]},
 {category:"Account and Security",items:[
 ["Can I have more than one account?","Follow the account terms regarding the number of accounts permitted."],
 ["How do I protect my account?","Use a unique password, keep it private, avoid shared devices where possible and never disclose one-time codes or passwords to anyone claiming to be support."],
-["What should I do if I suspect unauthorized access?","When member support becomes available, report suspected access immediately and follow the account recovery instructions. Do not share credentials in public messages."],
-["Can I change my password?","Password-change instructions will be included in the account help materials when login is available."],
+["What should I do if I suspect unauthorized access?","Contact Terviq AI support immediately if you suspect unauthorized access. Do not share credentials in public messages."],
+["Can I change my password?","Change your password from your account settings."],
 ["How do I update my account information?","Use your account settings to review and update your profile information."],
 ["Can I temporarily deactivate my account?","Contact Terviq AI for account deactivation assistance."],
 ["How can I contact customer support?","Use the Contact page for company and partnership inquiries. Use the Contact page to reach Terviq AI."]
@@ -78,7 +78,7 @@ const groups=[
 ["How does Terviq AI generate business revenue?","The repository describes agricultural technology capabilities, but does not provide verified revenue figures or a detailed revenue model. No unsupported revenue claims are made here."],
 ["Why does Terviq AI work with artificial intelligence?","AI can help organize agricultural data, identify patterns and support operational decisions across farms and agribusinesses."],
 ["How do agricultural technologies support the company's business?","The agricultural AI business is the company's technology foundation. The exact financial relationship between that business and member rewards has not been documented publicly."],
-["Is Terviq AI expanding into West Africa?","West Africa is a stated area of ambition. Specific operating locations, launch dates and country coverage have not been confirmed."]
+["Is Terviq AI expanding into West Africa?","West Africa is a stated area of ambition. West Africa is a key area of focus for Terviq AI."]
 ]},
 {category:"Investments and Partnerships",items:[
 ["Can I invest in Terviq AI?","The website welcomes investor inquiries, but it does not offer an investment product or securities subscription. Contact the company for verified, formal information."],
