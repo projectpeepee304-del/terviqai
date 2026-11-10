@@ -1,3 +1,3 @@
-import {WithdrawalsPage} from "@/components/member-pages";
-export const metadata={title:"Withdrawals & Payments",description:"Understand the withdrawal policies that must be confirmed before a payment service is promoted."};
-export default function Page(){return <WithdrawalsPage/>;}
+import {WithdrawalsPageV2} from "@/components/finance-pages";
+export const metadata={title:"Withdrawals & Payment Policy",description:"Review the supplied withdrawal days, fee structure, free withdrawal day and illustrative fee calculator."};
+export default function Page(){return <WithdrawalsPageV2/>;}
