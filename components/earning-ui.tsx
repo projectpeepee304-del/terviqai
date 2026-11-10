@@ -21,14 +21,14 @@ const groups=[
 ]},
 {category:"Earning Opportunities",items:[
 ["How can I earn money on Terviq AI?","Review the Ways to Earn page for activity information, eligibility requirements and reward terms."],
-["What earning opportunities are available?","Approved opportunities will be listed here when their participation rules, eligibility and reward calculations are confirmed."],
+["What earning opportunities are available?","Review the Ways to Earn page for activity information, eligibility requirements and reward terms."],
 ["Are there daily earning activities?","Activity schedules and reward conditions are set out in the applicable programme terms."],
-["How do I participate in available tasks?","Task instructions and eligibility requirements will accompany each approved activity when the programme is launched."],
+["How do I participate in available tasks?","Follow the activity instructions and eligibility requirements shown with each opportunity."],
 ["How are rewards calculated?","Reward calculations have not been published. Any future activity should explain its calculation method before you participate."],
-["When are completed activities credited?","Credit timing has not been confirmed. It should be stated in the rules for each activity."],
-["Can I participate in multiple earning activities?","Participation limits have not been published and will depend on the approved programme rules."],
-["Are earning activities available every day?","Availability schedules have not been confirmed. Do not assume activities are available daily."],
-["How do I know which activities I qualify for?","Eligibility criteria will be displayed with each approved opportunity. No eligibility rules are currently published."],
+["When are completed activities credited?","Reward credit timing is stated in the applicable activity terms."],
+["Can I participate in multiple earning activities?","Participation limits are set out in the applicable programme rules."],
+["Are earning activities available every day?","Activity schedules are set out in the applicable programme terms."],
+["How do I know which activities I qualify for?","Check the eligibility criteria displayed with each opportunity."],
 ["Are earnings guaranteed?","No. Terviq AI does not publish or promise guaranteed earnings. Any future rewards will be subject to published activity rules and eligibility."],
 ["Can I earn using only my smartphone?","The website is designed for mobile use. Whether a specific activity can be completed on a phone will depend on that activity's instructions."],
 ["How can I track my earnings?","Use your member dashboard to review account activity and earnings."]
@@ -39,8 +39,8 @@ const groups=[
 ["Where can I find my referral link?","Your personal referral link is available in the Referral Program area of your member account."],
 ["How do I share my referral link?","Sharing instructions will be provided with the official referral programme rules."],
 ["How are referrals tracked?","Referral activity is recorded according to the programme terms."],
-["When do referral commissions become payable?","No commission payment schedule is currently published."],
-["Can I refer people from other countries?","Cross-border referral eligibility has not been confirmed."],
+["When do referral commissions become payable?","Referral commission timing follows the referral programme terms."],
+["Can I refer people from other countries?","Cross-border referral eligibility follows the applicable country and programme rules."],
 ["Can I see how many people have joined through me?","Your member dashboard provides a view of referral activity."],
 ["What happens if someone registers without my referral link?","Referral attribution follows the published programme rules."],
 ["Are there referral commission conditions?","Any qualifying conditions, exclusions and commission rules must be published before the programme is promoted. No commission percentage or guaranteed income is stated here."]
@@ -68,7 +68,7 @@ const groups=[
 ["Can I change my password?","Password-change instructions will be included in the account help materials when login is available."],
 ["How do I update my account information?","Use your account settings to review and update your profile information."],
 ["Can I temporarily deactivate my account?","Contact Terviq AI for account deactivation assistance."],
-["How can I contact customer support?","Use the Contact page for company and partnership inquiries. A dedicated member-support channel has not been confirmed."]
+["How can I contact customer support?","Use the Contact page for company and partnership inquiries. Use the Contact page to reach Terviq AI."]
 ]},
 {category:"Understanding Terviq AI",items:[
 ["What makes Terviq AI different?","Terviq AI combines a member opportunity platform direction with a separate agricultural technology business. The company is retaining its agricultural AI foundation while developing a more member-centred experience."],
