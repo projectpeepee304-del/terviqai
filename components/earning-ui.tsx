@@ -17,7 +17,7 @@ const groups=[
 ["What should I do if I forget my password?","Use the password recovery instructions provided with your account and never share your password."],
 ["How do I verify my account?","Identity or contact verification requirements have not been confirmed. Any required checks should be explained in the official account terms."],
 ["Can I change my registered email address?","Email-change procedures will be published with the account rules when registration becomes available."],
-["Can I change my phone number?","Phone-number update procedures have not yet been published."]
+["Can I change my phone number?","Update your phone number from your account settings."]
 ]},
 {category:"Earning Opportunities",items:[
 ["How can I earn money on Terviq AI?","Review the Ways to Earn page for activity information, eligibility requirements and reward terms."],
@@ -55,8 +55,8 @@ const groups=[
 ["How long do withdrawals take?","No withdrawal processing time has been approved or published."],
 ["Are there withdrawal charges?","Withdrawal fees have not been confirmed. Review official terms before requesting or paying any charge."],
 ["Why is my withdrawal pending?","Review your member account for withdrawal request status and history."],
-["What happens if my withdrawal fails?","A failed-payment support process has not yet been published."],
-["Can I cancel a withdrawal request?","Cancellation rules have not yet been published."],
+["What happens if my withdrawal fails?","Contact Terviq AI support with the transaction reference and payment details."],
+["Can I cancel a withdrawal request?","Review the withdrawal request details and contact support for assistance with cancellation."],
 ["Where can I see my withdrawal history?","Your member account provides a record of withdrawal activity."],
 ["Do I need to verify my account before withdrawing?","Verification requirements have not been confirmed."],
 ["Can I withdraw my entire available balance?","Withdrawal limits and available-balance rules have not been published."]
