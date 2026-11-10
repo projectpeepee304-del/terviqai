@@ -29,7 +29,7 @@ const groups=[
 ["Can I participate in multiple earning activities?","Participation limits are set out in the applicable programme rules."],
 ["Are earning activities available every day?","Activity schedules are set out in the applicable programme terms."],
 ["How do I know which activities I qualify for?","Check the eligibility criteria displayed with each opportunity."],
-["Are earnings guaranteed?","No. Terviq AI does not publish or promise guaranteed earnings. Any future rewards will be subject to published activity rules and eligibility."],
+["Are earnings guaranteed?","No. Earnings depend on the published activity rules, eligibility requirements and successful completion of each activity."],
 ["Can I earn using only my smartphone?","The website is designed for mobile use. Whether a specific activity can be completed on a phone will depend on that activity's instructions."],
 ["How can I track my earnings?","Use your member dashboard to review account activity and earnings."]
 ]},
@@ -84,7 +84,7 @@ const groups=[
 ["Can I invest in Terviq AI?","The website welcomes investor inquiries, but it does not offer an investment product or securities subscription. Contact the company for verified, formal information."],
 ["How can I become a strategic partner?","Use the Contact page to describe your organization and the collaboration you would like to explore."],
 ["How can an agricultural company work with Terviq AI?","Agricultural businesses can make an inquiry about precision agriculture, crop intelligence, farm management, irrigation analytics or enterprise AI."],
-["Is the membership program the same as an investment?","No. Membership, any future referral rewards and a separately documented investment are distinct. Registering as a member does not make someone an investor."],
+["Is the membership program the same as an investment?","No. Membership, referral rewards and a separately documented investment are distinct. Registering as a member does not make someone an investor."],
 ["Where can I find official investment information?","Use the Investors & Partners page and contact Terviq AI directly. Any formal investment opportunity would require separate legal documentation and disclosures."]
 ]}
 ];
