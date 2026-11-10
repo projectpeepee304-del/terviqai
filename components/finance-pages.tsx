@@ -12,7 +12,8 @@ export const plans:Plan[]=[
 {id:5,amount:168000,days:90,flexPct:43,flexProfit:72240,flexTotal:240240,lockedPct:53,lockedProfit:89040,lockedTotal:257040},
 {id:6,amount:320000,days:120,flexPct:45,flexProfit:144000,flexTotal:464000,lockedPct:60,lockedProfit:192000,lockedTotal:512000}
 ];
-const money=(n:number)=>"₦"+Math.round(n).toLocaleString("en-NG");\nconst moneyExact=(n:number)=>"₦"+n.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});
+const money=(n:number)=>"₦"+Math.round(n).toLocaleString("en-NG");
+const moneyExact=(n:number)=>"₦"+n.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});
 function Disclosure({children}:{children:React.ReactNode}){return <div className="fin-disclosure"><ShieldAlert size={19}/><p>{children}</p></div>}
 function PageHero({kicker,title,desc}:{kicker:string;title:string;desc:string}){return <section className="page-hero"><div className="container"><span className="eyebrow">{kicker}</span><h1>{title}</h1><p>{desc}</p></div></section>}
 function SectionTitle({kicker,title,desc}:{kicker:string;title:string;desc?:string}){return <div className="section-head"><span className="eyebrow">{kicker}</span><h2>{title}</h2>{desc&&<p>{desc}</p>}</div>}
