@@ -2,7 +2,7 @@
 import Link from "next/link";
 import {useContext,useEffect,useState} from "react";
 import {useRouter} from "next/navigation";
-import {ArrowLeft,UserRound,Settings,ReceiptText,LogOut,ChevronRight,LockKeyhole,Palette,Eye,EyeOff,History,ArrowDownLeft,ArrowUpRight,Gift,CheckCircle2} from "lucide-react";
+import {ArrowLeft,UserRound,Settings,ReceiptText,LogOut,ChevronRight,LockKeyhole,Palette,Eye,EyeOff,History,ArrowDownLeft,ArrowUpRight,Gift,CheckCircle2,LifeBuoy} from "lucide-react";
 import {DashboardUserContext} from "./dashboard-shell";
 import {changePassword,saveProfile,sendPasswordReset,signOut} from "../actions";
 type Tab="menu"|"profile"|"settings"|"history";
@@ -18,7 +18,7 @@ export function DashboardProfile(){
  return <div className="tvq-profile-page"><header className="tvq-profile-header"><Link href="/dashboard" aria-label="Back to dashboard"><ArrowLeft size={19}/></Link><h1>Profile</h1><span/></header>
   <section className="tvq-profile-intro"><span className="tvq-avatar">{initials||"JD"}</span><div><h2>{userName}</h2><p>{email}</p></div></section>
   <div className={"tvq-profile-layout "+(tab!=="menu"?"is-panel":"")}>
-   <aside className="tvq-profile-menu">{items.map(({id,label,Icon})=><button key={id} className={tab===id?"active":""} onClick={()=>{setTab(id);setFeedback("");}}><Icon size={18}/>{label}<ChevronRight size={15} style={{marginLeft:"auto"}}/></button>)}<form action={signOut}><button className="tvq-logout" type="submit"><LogOut size={18}/>Log out</button></form></aside>
+   <aside className="tvq-profile-menu">{items.map(({id,label,Icon})=><button key={id} className={tab===id?"active":""} onClick={()=>{setTab(id);setFeedback("");}}><Icon size={18}/>{label}<ChevronRight size={15} style={{marginLeft:"auto"}}/></button>)}<form action={signOut}><button className="tvq-logout" type="submit"><LogOut size={18}/>Log out</button></form><Link className="tvq-profile-support" href="/dashboard/support"><LifeBuoy size={18}/>Contact Support<ChevronRight size={15} style={{marginLeft:"auto"}}/></Link></aside>
    <section className="tvq-profile-content">
     {tab!=="menu"&&<button className="tvq-panel-back" onClick={()=>{setTab("menu");setFeedback("");}} style={{border:0,background:"transparent",color:"var(--tvq-muted)",alignItems:"center",gap:7,marginBottom:18,fontSize:12,cursor:"pointer"}}><ArrowLeft size={16}/> Back to profile</button>}
     {tab==="profile"&&<><h2>My Profile</h2><form action={handleProfile}><div className="tvq-form-grid"><label className="tvq-field">Full name<input name="full_name" defaultValue={userName} required/></label><label className="tvq-field">Date of birth<input name="date_of_birth" type="date" defaultValue={dateOfBirth}/></label><label className="tvq-field">Phone number<input name="phone" type="tel" defaultValue={phone} placeholder="+234 800 000 0000"/></label><label className="tvq-field">Email address<input name="email" type="email" defaultValue={email} required/></label></div><button className="tvq-save-btn" type="submit" disabled={busy}>{busy?"Saving…":"Save changes"}</button></form>{feedback&&<p className="tvq-feedback" role="status">{feedback}</p>}</>}
