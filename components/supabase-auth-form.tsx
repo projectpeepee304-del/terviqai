@@ -6,7 +6,7 @@ import {signIn,signUp} from "@/app/dashboard/actions";
 export function SupabaseAuthForm({signup=false}:{signup?:boolean}){
  const [show,setShow]=useState(false);const [message,setMessage]=useState("");const [referralCode,setReferralCode]=useState("");const [busy,startTransition]=useTransition();
  useEffect(()=>{if(signup){const code=new URLSearchParams(window.location.search).get("ref");if(code)setReferralCode(code);}},[signup]);
- function submit(formData:FormData){setMessage("");startTransition(async()=>{const result=signup?await signUp(formData):await signIn(formData);setMessage("success" in result?result.success:result.error);});}
+ function submit(formData:FormData){setMessage("");startTransition(async()=>{const result=signup?await signUp(formData):await signIn(formData);setMessage(("success" in result?result.success:undefined)??("error" in result?result.error:undefined)??"");});}
  return <form className="member-form" action={submit}>
   {signup&&<label>Full name<input name="full_name" required autoComplete="name" placeholder="Enter your full name"/></label>}
   <label>Email address<input name="email" type="email" required autoComplete="email" placeholder="you@example.com"/></label>
