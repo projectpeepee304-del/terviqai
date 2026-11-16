@@ -1,3 +1,4 @@
 import {redirect} from "next/navigation";import {requireAdmin} from "../lib/supabase/admin";import {AdminShell} from "./shell";
+import "./admin.css";
 export const metadata={title:"Terviq AI Admin",robots:{index:false,follow:false}};
 export default async function Layout({children}:{children:React.ReactNode}){const a=await requireAdmin();if("error" in a)redirect("/login?next=%2Fdashboard%2Fadmin");return <AdminShell name={String(a.user.user_metadata?.full_name||"James")}>{children}</AdminShell>}
