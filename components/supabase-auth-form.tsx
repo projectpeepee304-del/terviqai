@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
-import {useState,useTransition} from "react";
+import {useEffect,useState,useTransition} from "react";
 import {ArrowUpRight,Eye,EyeOff,LockKeyhole} from "lucide-react";
 import {signIn,signUp} from "@/app/dashboard/actions";
 export function SupabaseAuthForm({signup=false}:{signup?:boolean}){
- const [show,setShow]=useState(false);const [message,setMessage]=useState("");const [busy,startTransition]=useTransition();
+ const [show,setShow]=useState(false);const [message,setMessage]=useState("");const [referralCode,setReferralCode]=useState("");const [busy,startTransition]=useTransition();\n useEffect(()=>{if(signup){const code=new URLSearchParams(window.location.search).get("ref");if(code)setReferralCode(code);}},[signup]);
  function submit(formData:FormData){setMessage("");startTransition(async()=>{const result=signup?await signUp(formData):await signIn(formData);setMessage(result?.success||result?.error||"");});}
  return <form className="member-form" action={submit}>
   {signup&&<label>Full name<input name="full_name" required autoComplete="name" placeholder="Enter your full name"/></label>}
