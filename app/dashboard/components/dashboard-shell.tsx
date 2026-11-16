@@ -3,14 +3,16 @@ import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {createContext,useEffect,useState} from "react";
 import {Bell,Sun,Moon,UserRound,Home,ChartNoAxesCombined,Gift,Sprout} from "lucide-react";
-type Transaction={id:string;type:string;amount:number;status:string;created_at:string};\ntype UserInfo={userName:string;email:string;referralCode:string;availableBalance:number;referralBalance:number;totalInvested:number;currentProfit:number;referralEarned:number;friendsReferred:number;transactions:Transaction[]};
+type Transaction={id:string;type:string;amount:number;status:string;created_at:string};
+type UserInfo={userName:string;email:string;referralCode:string;availableBalance:number;referralBalance:number;totalInvested:number;currentProfit:number;referralEarned:number;friendsReferred:number;transactions:Transaction[]};
 export const DashboardUserContext=createContext<UserInfo>({userName:"John Doe",email:"john.doe@terviqai.com",referralCode:"TERVIQ-JD50",availableBalance:50,referralBalance:50,totalInvested:0,currentProfit:0,referralEarned:0,friendsReferred:0,transactions:[]});
 type Props=UserInfo&{children:React.ReactNode};
 const nav=[{label:"Home",href:"/dashboard",Icon:Home},{label:"Invest",href:"/dashboard/invest",Icon:ChartNoAxesCombined},{label:"Referral",href:"/dashboard/referral",Icon:Gift},{label:"Profile",href:"/dashboard/profile",Icon:UserRound}];
 export function DashboardShell({children,userName,email,referralCode}:Props){
  const pathname=usePathname();const [theme,setTheme]=useState<"light"|"dark"|"automatic">("light");const [notifications,setNotifications]=useState(false);
  useEffect(()=>{const saved=localStorage.getItem("terviq-dashboard-theme");if(saved==="light"||saved==="dark"||saved==="automatic")setTheme(saved);},[]);
- useEffect(()=>{document.documentElement.dataset.tvqTheme=theme;localStorage.setItem("terviq-dashboard-theme",theme);},[theme]);\n useEffect(()=>{const listener=(event:Event)=>{const next=(event as CustomEvent).detail;if(next==="light"||next==="dark"||next==="automatic")setTheme(next);};window.addEventListener("terviq-theme-change",listener);return()=>window.removeEventListener("terviq-theme-change",listener);},[]);
+ useEffect(()=>{document.documentElement.dataset.tvqTheme=theme;localStorage.setItem("terviq-dashboard-theme",theme);},[theme]);
+ useEffect(()=>{const listener=(event:Event)=>{const next=(event as CustomEvent).detail;if(next==="light"||next==="dark"||next==="automatic")setTheme(next);};window.addEventListener("terviq-theme-change",listener);return()=>window.removeEventListener("terviq-theme-change",listener);},[]);
  const profilePage=pathname==="/dashboard/profile";
  return <DashboardUserContext.Provider value={{userName,email,referralCode}}><div className="tvq-dashboard" data-theme={theme}>
   {!profilePage&&<header className="tvq-topbar"><Link href="/dashboard" className="tvq-logo" aria-label="Terviq AI dashboard"><span className="tvq-logo-mark"><Sprout size={19}/></span><span>terviq<span> AI</span></span></Link>
