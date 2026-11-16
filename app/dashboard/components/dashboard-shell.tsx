@@ -4,7 +4,7 @@ import {usePathname} from "next/navigation";
 import {createContext,useEffect,useState} from "react";
 import {Bell,Sun,Moon,UserRound,Home,ChartNoAxesCombined,Gift,Sprout} from "lucide-react";
 type Transaction={id:string;type:string;amount:number;status:string;created_at:string};\ntype UserInfo={userName:string;email:string;referralCode:string;availableBalance:number;referralBalance:number;totalInvested:number;currentProfit:number;referralEarned:number;friendsReferred:number;transactions:Transaction[]};
-export const DashboardUserContext=createContext<UserInfo>({userName:"John Doe",email:"john.doe@terviqai.com",referralCode:"TERVIQ-JD50",availableBalance:50,referralBalance:50,totalInvested:50,currentProfit:50,referralEarned:50,friendsReferred:0,transactions:[]});
+export const DashboardUserContext=createContext<UserInfo>({userName:"John Doe",email:"john.doe@terviqai.com",referralCode:"TERVIQ-JD50",availableBalance:50,referralBalance:50,totalInvested:0,currentProfit:0,referralEarned:0,friendsReferred:0,transactions:[]});
 type Props=UserInfo&{children:React.ReactNode};
 const nav=[{label:"Home",href:"/dashboard",Icon:Home},{label:"Invest",href:"/dashboard/invest",Icon:ChartNoAxesCombined},{label:"Referral",href:"/dashboard/referral",Icon:Gift},{label:"Profile",href:"/dashboard/profile",Icon:UserRound}];
 export function DashboardShell({children,userName,email,referralCode}:Props){
