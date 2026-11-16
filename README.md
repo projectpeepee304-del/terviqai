@@ -4,6 +4,9 @@ A responsive Next.js website presenting Terviq AI's member opportunity experienc
 
 ## Technology
 
+- Supabase Auth and PostgreSQL (member authentication, profiles, wallet balances, investments, referrals, notifications and transaction history)
+- Supabase SSR cookie-based sessions
+
 - Next.js 15 App Router
 - React 19 and TypeScript
 - Custom responsive CSS design system
@@ -33,7 +36,7 @@ Open http://localhost:3000.
 - `/withdrawals` — Withdrawal and payment policy information
 - `/faq` — Searchable, category-based member FAQ
 - `/login` and `/signup` — Member access form previews
-- `/dashboard` — Expanded illustrative member dashboard
+- `/dashboard` — Member home, portfolio balances and recent activity\n- `/dashboard/invest` — Investment plan cards and portfolio totals\n- `/dashboard/referral` — Personal referral code, link, referral totals and commission information\n- `/dashboard/profile` — Profile editing, settings, password recovery and transaction history
 - `/compliance` — Regulatory claim and documentation status
 
 ### Company and technology
@@ -60,6 +63,32 @@ Primary domain: https://terviqai.com
 
 Vercel project alias: https://terviqai.vercel.app
 
+## Member dashboard and Supabase setup
+
+The dashboard is organised under `app/dashboard/`. Its nested layout deliberately removes the public website header and footer. The member navigation is a fixed bottom bar with Home, Invest, Referral and Profile; the Profile screen uses a responsive account menu and does not show the bottom bar.
+
+### Connect Supabase
+
+1. Create a Supabase project.
+2. Copy `.env.example` to `.env.local` for local development.
+3. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from the Supabase project API settings.
+4. Run `app/dashboard/database/schema.sql` in the Supabase SQL Editor.
+5. Add the same two environment variables to the existing Vercel project for Production, Preview and Development, then redeploy.
+6. In Supabase Authentication URL Configuration, set the site URL to `https://terviqai.com` and add `https://terviqai.com/reset-password` to the allowed redirect URLs (also add your local development URL).
+7. Enable the email confirmation and password policies you want to use in Supabase Auth.
+
+When Supabase environment variables are present, the dashboard requires an authenticated Supabase session and reads the signed-in member's profile, wallet, investments, referrals and transactions. Without those variables, the dashboard remains available in frontend preview mode with the requested ₦50 balance examples.
+
+### Dashboard data and security
+
+- Supabase Auth handles member sign-up, sign-in, sign-out and password reset.
+- Profile changes are saved to the signed-in member's own profile.
+- The database schema enables Row Level Security and member-scoped read/update policies.
+- The member signup referral code is attributed to the referrer by the database signup trigger.
+- The SQL function `record_first_investment_referral` credits 10% of the referee's first eligible investment. It is executable only by the Supabase `service_role`; call it only from a trusted server workflow after payment/investment verification.
+- The public anon key is used by the browser and is safe only with the supplied RLS policies. Never expose a Supabase service-role key in client code or a `NEXT_PUBLIC_` environment variable.
+- Wallet credits/debits, investment creation, bank/crypto payment verification and withdrawal processing must be implemented as trusted server-side workflows before real transactions are enabled.
+
 ## Business information required before member launch
 
 The repository does not currently contain approved member programme documentation. The website therefore avoids inventing:
@@ -74,9 +103,9 @@ The opportunity directory and policy pages are structured so approved details ca
 
 ## Account and payment status
 
-Login and registration pages include responsive forms, browser validation, password visibility and a strength indicator. They do not create or authenticate accounts. The form feedback makes clear that details are not submitted or saved.
+Login and registration use Supabase Auth when the project environment variables are configured. The dashboard requires an authenticated Supabase session in that mode.
 
-The dashboard and referral panels are illustrative UI only. They do not display real member balances, transactions, commissions or payment evidence. No payment processing or withdrawal system is implemented.
+The dashboard reads member balances and transaction records from Supabase when configured. The requested ₦50 available and referral balances are frontend preview values only until real wallet balances are present in the member wallet table.
 
 ## Other launch items
 
@@ -108,7 +137,7 @@ The repository tree was inspected for authorization, registration, license, cert
 
 - No bank account details or cryptocurrency wallet addresses are configured.
 - Deposit and withdrawal forms are informational previews only; no payment gateway, blockchain watcher, custody wallet, reconciliation or bank integration is connected.
-- Login, registration, investment selection and dashboard remain frontend-only; no member database, authentication, KYC/AML, balance ledger or transaction engine is connected.
-- Referral link and referral tracking are placeholders; no live commission attribution, calculation or payout is implemented.
+- Supabase Auth, profile and member dashboard tables are scaffolded. Investment purchase, payment settlement, wallet ledger posting, KYC/AML and withdrawal execution still require trusted transaction workflows and operational integrations.
+- Signup referral attribution and a restricted first-investment 10% commission SQL function are included. The trusted investment/payment workflow that invokes the function after verification remains to be implemented.
 - Weekend/public-holiday treatment for a 30th-of-month free withdrawal day must be defined in final terms.
 - Bybit, Busha and Spenda are named only as examples from the supplied brief, not as partners, endorsements or confirmed available providers.
