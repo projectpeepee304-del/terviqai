@@ -365,3 +365,5 @@
 
 /* Auth pages become standalone full-screen experiences on tablet and mobile. */
 @media(max-width:900px){.site-chrome-auth{display:none!important}.member-auth-page{min-height:100svh!important;height:auto!important;grid-template-columns:1fr!important;align-items:stretch!important;padding:0!important;margin:0!important}.member-auth-card{min-height:100svh;padding:clamp(28px,7vw,56px) clamp(20px,7vw,48px)!important;display:flex;flex-direction:column;justify-content:center;width:100%;max-width:none!important;border-radius:0!important}.member-auth-card>.brand{margin-bottom:30px}.member-auth-card>.eyebrow{margin-top:0!important}.member-auth-aside{display:none!important}.member-auth-card .auth-back{margin-top:22px}}
+
+@media(max-width:900px){.auth-route-main~.back-top{display:none!important}}
