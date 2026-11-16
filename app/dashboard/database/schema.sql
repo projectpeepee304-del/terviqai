@@ -71,15 +71,26 @@ returns trigger
 language plpgsql
 security definer
 set search_path = public
-as $$
+as $
+declare
+ v_referrer_id uuid;
+ v_referral_code text;
 begin
  insert into public.profiles (id,full_name,email,phone)
  values (new.id,coalesce(new.raw_user_meta_data->>'full_name',''),new.email,new.raw_user_meta_data->>'phone')
  on conflict (id) do update set email=excluded.email;
  insert into public.wallets (user_id) values (new.id) on conflict (user_id) do nothing;
+ v_referral_code := upper(trim(coalesce(new.raw_user_meta_data->>'referral_code','')));
+ if v_referral_code <> '' then
+  select id into v_referrer_id from public.profiles where upper(referral_code)=v_referral_code limit 1;
+  if v_referrer_id is not null and v_referrer_id <> new.id then
+   insert into public.referrals(referrer_id,referred_user_id,referral_code)
+   values(v_referrer_id,new.id,v_referral_code) on conflict(referrer_id,referred_user_id) do nothing;
+  end if;
+ end if;
  return new;
 end;
-$$;
+$;
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users
@@ -118,3 +129,44 @@ create policy "Members update own notifications" on public.notifications for upd
 -- writes should be performed by trusted server-side workflows after business rules,
 -- idempotency and payment verification have been implemented. Never expose service-role
 -- credentials to the browser.
+
+
+-- Called only by a trusted server-side payment/investment workflow after the first
+-- investment has been verified and committed. It credits the 10% referral reward once.
+create or replace function public.record_first_investment_referral(
+ p_referred_user_id uuid,
+ p_first_investment_amount numeric,
+ p_transaction_reference text
+) returns numeric
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+ v_referral public.referrals%rowtype;
+ v_commission numeric(18,2);
+begin
+ if auth.role() <> 'service_role' then
+  raise exception 'This operation is restricted to the trusted server.';
+ end if;
+ if p_first_investment_amount <= 0 or coalesce(p_transaction_reference,'') = '' then
+  raise exception 'A verified investment amount and reference are required.';
+ end if;
+ select * into v_referral from public.referrals
+ where referred_user_id=p_referred_user_id and status='registered'
+ for update;
+ if not found then return 0; end if;
+ v_commission := round(p_first_investment_amount * 0.10,2);
+ update public.referrals set first_investment_amount=p_first_investment_amount,
+  commission_amount=v_commission,status='credited'
+ where id=v_referral.id;
+ update public.wallets set referral_balance=referral_balance+v_commission,updated_at=now()
+ where user_id=v_referral.referrer_id;
+ insert into public.transactions(user_id,type,amount,status,description,reference)
+ values(v_referral.referrer_id,'referral_commission',v_commission,'completed',
+  '10% commission on first eligible referral investment','REF-'||p_transaction_reference);
+ return v_commission;
+end;
+$$;
+revoke all on function public.record_first_investment_referral(uuid,numeric,text) from public,anon,authenticated;
+grant execute on function public.record_first_investment_referral(uuid,numeric,text) to service_role;
