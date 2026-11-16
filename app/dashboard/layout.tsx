@@ -1,10 +1,13 @@
 import type {Metadata} from "next";
 import {redirect} from "next/navigation";
+import {headers} from "next/headers";
 import {DashboardShell} from "./components/dashboard-shell";
 import {createClient,isSupabaseConfigured} from "./lib/supabase/server";
 import "./dashboard.css";
 export const metadata:Metadata={title:{default:"Member Dashboard",template:"%s | Terviq AI"},robots:{index:false,follow:false}};
 export default async function DashboardLayout({children}:{children:React.ReactNode}){
+ const pathname=(await headers()).get("x-terviq-pathname")||"";
+ if(pathname.startsWith("/dashboard/admin"))return children;
  let userName="John Doe",email="john.doe@terviqai.com",phone="",dateOfBirth="",referralCode="TERVIQ-JD50";
  let availableBalance=50,referralBalance=50,totalInvested=0,currentProfit=0,referralEarned=0,friendsReferred=0;
  let transactions:{id:string;type:string;amount:number;status:string;created_at:string}[]=[];
