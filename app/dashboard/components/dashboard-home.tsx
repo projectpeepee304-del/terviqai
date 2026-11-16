@@ -5,9 +5,8 @@ import {Eye,EyeOff,ArrowUpRight,Wallet,Gift,ChartNoAxesCombined,Clock3} from "lu
 import {DashboardUserContext} from "./dashboard-shell";
 const naira=(n:number)=>"₦"+n.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});
 export function DashboardHome(){
- const {userName,availableBalance,referralBalance}=useContext(DashboardUserContext);const [visible,setVisible]=useState(true);const [greeting,setGreeting]=useState("Good morning");
- useEffect(()=>{const hour=new Date().getHours();setGreeting(hour<12?"Good morning":hour<17?"Good afternoon":"Good evening");},[]);
- const today=new Intl.DateTimeFormat("en-NG",{weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(new Date());
+ const {userName,availableBalance,referralBalance}=useContext(DashboardUserContext);const [visible,setVisible]=useState(true);const [greeting,setGreeting]=useState("Good morning");const [today,setToday]=useState("");
+ useEffect(()=>{const hour=new Date().getHours();setGreeting(hour<12?"Good morning":hour<17?"Good afternoon":"Good evening");setToday(new Intl.DateTimeFormat("en-NG",{weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(new Date()));},[]);
  return <><section className="tvq-greeting"><div><p>{greeting},</p><h1>{userName}</h1></div><span className="tvq-greeting-note">Welcome to your Terviq AI account</span></section>
   <section className="tvq-balance-card"><div className="tvq-balance-head"><span>PORTFOLIO BALANCE</span><time>{today}</time></div><div className="tvq-balance-grid"><div className="tvq-balance-cell"><span>Available Balance <button className="tvq-eye" aria-label={visible?"Hide balances":"Show balances"} onClick={()=>setVisible(!visible)}>{visible?<Eye size={17}/>:<EyeOff size={17}/>}</button></span><strong>{visible?naira(availableBalance):"₦••••••"}</strong><small>Ready for your next move</small></div><div className="tvq-balance-cell"><span>Referral Balance</span><strong>{visible?naira(referralBalance):"₦••••••"}</strong><small>Your referral rewards</small></div></div></section>
   <section className="tvq-section"><div className="tvq-section-head"><h2>Quick actions</h2></div><div className="tvq-quick-grid">
