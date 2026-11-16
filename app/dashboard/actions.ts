@@ -18,7 +18,7 @@ export async function saveProfile(formData:FormData){
  if(!isSupabaseConfigured())return {error:"Connect your Supabase project to save profile changes."};
  const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();if(!user)return {error:"Please sign in again."};
  const full_name=String(formData.get("full_name")||"").trim(),phone=String(formData.get("phone")||"").trim(),date_of_birth=String(formData.get("date_of_birth")||"")||null,email=String(formData.get("email")||"").trim();
- const {error}=await supabase.from("profiles").upsert({id:user.id,full_name,phone,date_of_birth,email,updated_at:new Date().toISOString()});
+ const {error}=await supabase.from("profiles").update({full_name,phone,date_of_birth,email,updated_at:new Date().toISOString()}).eq("id",user.id);
  if(error)return {error:error.message};
  if(email&&email!==user.email){const {error:emailError}=await supabase.auth.updateUser({email});if(emailError)return {error:emailError.message};return {success:"Profile saved. Confirm your new email address using the message we sent you."};}
  return {success:"Your profile has been saved."};
