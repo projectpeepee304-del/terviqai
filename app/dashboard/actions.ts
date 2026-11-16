@@ -10,7 +10,7 @@ export async function signIn(formData:FormData){
 export async function signUp(formData:FormData){
  if(!isSupabaseConfigured()) return {error:"Account registration is being configured. Please try again shortly."};
  const supabase=await createClient();
- const {error}=await supabase.auth.signUp({email:String(formData.get("email")||"").trim(),password:String(formData.get("password")||""),options:{data:{full_name:String(formData.get("full_name")||"").trim(),phone:String(formData.get("phone")||"").trim(),referral_code:String(formData.get("referral_code")||"").trim()}}});
+ const {error}=await supabase.auth.signUp({email:String(formData.get("email")||"").trim(),password:String(formData.get("password")||""),options:{emailRedirectTo:"https://terviqai.com/auth/callback?next=%2Fdashboard",data:{full_name:String(formData.get("full_name")||"").trim(),phone:String(formData.get("phone")||"").trim(),referral_code:String(formData.get("referral_code")||"").trim()}}});
  if(error)return {error:error.message};return {success:"Check your email to confirm your Terviq AI account, then sign in."};
 }
 export async function signOut(){if(isSupabaseConfigured()){const supabase=await createClient();await supabase.auth.signOut();}redirect("/login");}
@@ -32,6 +32,6 @@ export async function changePassword(formData:FormData){
 }
 export async function sendPasswordReset(formData:FormData){
  if(!isSupabaseConfigured())return {error:"Connect your Supabase project to reset your password."};
- const email=String(formData.get("email")||"").trim(),supabase=await createClient();const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:"https://terviqai.com/reset-password"});
+ const email=String(formData.get("email")||"").trim(),supabase=await createClient();const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:"https://terviqai.com/auth/callback?next=%2Freset-password%3Frecovery%3D1"});
  return error?{error:error.message}:{success:"If an account exists for this email, a password reset link has been sent."};
 }
