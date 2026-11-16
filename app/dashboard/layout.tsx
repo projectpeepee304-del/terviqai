@@ -6,7 +6,7 @@ import "./dashboard.css";
 export const metadata:Metadata={title:{default:"Member Dashboard",template:"%s | Terviq AI"},robots:{index:false,follow:false}};
 export default async function DashboardLayout({children}:{children:React.ReactNode}){
  let userName="John Doe",email="john.doe@terviqai.com",referralCode="TERVIQ-JD50";
- let availableBalance=50,referralBalance=50,totalInvested=50,currentProfit=50,referralEarned=50,friendsReferred=0;
+ let availableBalance=50,referralBalance=50,totalInvested=0,currentProfit=0,referralEarned=0,friendsReferred=0;
  let transactions:{id:string;type:string;amount:number;status:string;created_at:string}[]=[];
  if(isSupabaseConfigured()){
   const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();if(!user)redirect("/login?next=/dashboard");
