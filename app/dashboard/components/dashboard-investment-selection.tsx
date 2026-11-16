@@ -1,0 +1,15 @@
+"use client";
+import Link from "next/link";
+import {useEffect,useState} from "react";
+import {ArrowLeft,ArrowRight,LockKeyhole,RefreshCw,CheckCircle2} from "lucide-react";
+import {plans} from "@/components/finance-pages";
+const money=(n:number)=>"₦"+Math.round(n).toLocaleString("en-NG");
+export function DashboardInvestmentSelection(){
+ const [planId,setPlanId]=useState(1);const [option,setOption]=useState<"flexible"|"locked">("flexible");
+ useEffect(()=>{const q=new URLSearchParams(window.location.search);const id=Number(q.get("plan")||1);if(plans.some(p=>p.id===id))setPlanId(id);if(q.get("option")==="locked")setOption("locked");},[]);
+ const plan=plans.find(p=>p.id===planId)||plans[0];const locked=option==="locked";const profit=locked?plan.lockedProfit:plan.flexProfit;const total=locked?plan.lockedTotal:plan.flexTotal;const rate=locked?plan.lockedPct:plan.flexPct;
+ return <section className="tvq-internal-page"><header className="tvq-internal-head"><Link href="/dashboard/invest" aria-label="Back to investment"><ArrowLeft size={19}/></Link><h1>Investment Selection</h1><span/></header><p className="tvq-selection-intro">Choose how you want this investment plan to work for you.</p>
+ <div className="tvq-selection-card"><label className="tvq-selection-label">Selected investment plan</label><select value={planId} onChange={e=>setPlanId(Number(e.target.value))}>{plans.map(p=><option key={p.id} value={p.id}>Plan {p.id} · {money(p.amount)} · {p.days} days</option>)}</select>
+ <h2>Choose your investment option</h2><div className="tvq-option-choices"><button type="button" onClick={()=>setOption("flexible")} className={option==="flexible"?"selected":""}><span><RefreshCw size={19}/><b>Flexible</b></span><small>Greater access flexibility, subject to the withdrawal policy.</small>{option==="flexible"&&<CheckCircle2 size={17}/>}</button><button type="button" onClick={()=>setOption("locked")} className={option==="locked"?"selected":""}><span><LockKeyhole size={19}/><b>Locked</b></span><small>Principal remains locked for the full plan duration.</small>{option==="locked"&&<CheckCircle2 size={17}/>}</button></div>
+ <div className="tvq-selection-summary"><div><span>Entry amount</span><b>{money(plan.amount)}</b></div><div><span>Duration</span><b>{plan.days} days</b></div><div><span>Selected option</span><b>{locked?"Locked":"Flexible"}</b></div><div><span>Projected rate</span><b>{rate}%</b></div><div><span>Projected profit</span><b>{money(profit)}</b></div><div><span>Projected total</span><b>{money(total)}</b></div></div><p className="tvq-selection-disclaimer">Figures are projections based on the displayed plan schedule and are not guaranteed returns. Review all applicable terms before proceeding.</p><Link className="tvq-buy tvq-selection-back" href="/dashboard/invest"><ArrowLeft size={15}/> Back to investment plans</Link><Link className="tvq-buy" href={"/dashboard/investment-selection?plan="+plan.id+"&option="+option} aria-label="Update selected investment option">Update selection <ArrowRight size={15}/></Link></div></section>;
+}
