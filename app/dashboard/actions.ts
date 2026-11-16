@@ -32,6 +32,6 @@ export async function changePassword(formData:FormData){
 }
 export async function sendPasswordReset(formData:FormData){
  if(!isSupabaseConfigured())return {error:"Connect your Supabase project to reset your password."};
- const email=String(formData.get("email")||"").trim(),supabase=await createClient();const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:"https://terviqai.com/login"});
+ const email=String(formData.get("email")||"").trim(),supabase=await createClient();const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:"https://terviqai.com/reset-password"});
  return error?{error:error.message}:{success:"If an account exists for this email, a password reset link has been sent."};
 }
