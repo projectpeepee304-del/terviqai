@@ -1,6 +1,14 @@
 // Tawk.to live chat loader — loaded site-wide through Next.js Script.
 var Tawk_API = Tawk_API || {};
 var Tawk_LoadStart = new Date();
+
+// Keep the launcher at the bottom-right and raise it by 50px on all screens.
+Tawk_API.customStyle = {
+  visibility: {
+    desktop: { position: "br", xOffset: "0px", yOffset: "50px" },
+    mobile: { position: "br", xOffset: "0px", yOffset: "50px" }
+  }
+};
 (function () {
   var s1 = document.createElement("script");
   var s0 = document.getElementsByTagName("script")[0];
