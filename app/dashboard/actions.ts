@@ -2,12 +2,14 @@
 import {redirect} from "next/navigation";
 import {createClient,isSupabaseConfigured} from "./lib/supabase/server";
 export async function signIn(formData:FormData){
+ const password=String(formData.get("password")||"");if(password.length<6||password.length>20||!/[A-Za-z]/.test(password)||!/[0-9]/.test(password))return {error:"Password must be 6–20 characters and contain at least one letter and one number."};
  if(!isSupabaseConfigured()) return {error:"Account access is being configured. Please try again shortly."};
  const supabase=await createClient();
  const {error}=await supabase.auth.signInWithPassword({email:String(formData.get("email")||"").trim(),password:String(formData.get("password")||"")});
  if(error) return {error:error.message};redirect("/dashboard");
 }
 export async function signUp(formData:FormData){
+ const password=String(formData.get("password")||"");if(password.length<6||password.length>20||!/[A-Za-z]/.test(password)||!/[0-9]/.test(password))return {error:"Password must be 6–20 characters and contain at least one letter and one number."};
  if(!isSupabaseConfigured()) return {error:"Account registration is being configured. Please try again shortly."};
  const supabase=await createClient();
  const {error}=await supabase.auth.signUp({email:String(formData.get("email")||"").trim(),password:String(formData.get("password")||""),options:{emailRedirectTo:(process.env.NEXT_PUBLIC_SITE_URL||"https://terviqai.com")+"/auth/callback?next=%2Fdashboard",data:{full_name:String(formData.get("full_name")||"").trim(),phone:String(formData.get("phone")||"").trim(),referral_code:String(formData.get("referral_code")||"").trim()}}});
