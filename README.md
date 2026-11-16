@@ -71,10 +71,10 @@ The dashboard is organised under `app/dashboard/`. Its nested layout deliberatel
 
 1. Create a Supabase project.
 2. Copy `.env.example` to `.env.local` for local development.
-3. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from the Supabase project API settings.
+3. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from the Supabase project API settings. Set `NEXT_PUBLIC_SITE_URL` to `http://localhost:3000` locally and `https://terviqai.com` on Vercel.
 4. Run `app/dashboard/database/schema.sql` in the Supabase SQL Editor.
 5. Add the same two environment variables to the existing Vercel project for Production, Preview and Development, then redeploy.
-6. In Supabase Authentication URL Configuration, set the site URL to `https://terviqai.com` and add `https://terviqai.com/reset-password` to the allowed redirect URLs (also add your local development URL).
+6. In Supabase Authentication URL Configuration, set the site URL to `https://terviqai.com` and add `https://terviqai.com/auth/callback` to the allowed redirect URLs (also add `http://localhost:3000/auth/callback` locally).
 7. Enable the email confirmation and password policies you want to use in Supabase Auth.
 
 When Supabase environment variables are present, the dashboard requires an authenticated Supabase session and reads the signed-in member's profile, wallet, investments, referrals and transactions. Without those variables, the dashboard remains available in frontend preview mode with the requested ₦50 balance examples.
