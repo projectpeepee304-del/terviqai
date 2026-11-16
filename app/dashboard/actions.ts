@@ -6,7 +6,10 @@ export async function signIn(formData:FormData){
  if(!isSupabaseConfigured()) return {error:"Account access is being configured. Please try again shortly."};
  const supabase=await createClient();
  const {error}=await supabase.auth.signInWithPassword({email:String(formData.get("email")||"").trim(),password:String(formData.get("password")||"")});
- if(error) return {error:error.message};redirect("/dashboard");
+ if(error) return {error:error.message};
+ const {data:{user}}=await supabase.auth.getUser();
+ if(user){const {data:profile}=await supabase.from("profiles").select("account_status").eq("id",user.id).maybeSingle();if(profile?.account_status==="suspended"){await supabase.auth.signOut();return {error:"This account has been suspended. Please contact Terviq AI support."};}}
+ redirect("/dashboard");
 }
 export async function signUp(formData:FormData){
  const password=String(formData.get("password")||"");if(password.length<6||password.length>20||!/[A-Za-z]/.test(password)||!/[0-9]/.test(password))return {error:"Password must be 6–20 characters and contain at least one letter and one number."};
