@@ -55,7 +55,7 @@ create table if not exists public.referrals (
  commission_amount numeric(18,2) not null default 0,
  status text not null default 'registered' check (status in ('registered','qualified','credited')),
  created_at timestamptz not null default now(),
- unique(referrer_id,referred_user_id)
+ unique(referred_user_id)
 );
 
 create table if not exists public.notifications (

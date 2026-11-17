@@ -37,7 +37,7 @@ begin
  insert into public.wallets(user_id) values(new.id) on conflict(user_id) do nothing;
  v_referral_code:=upper(trim(coalesce(new.raw_user_meta_data->>'referral_code','')));
  if v_referral_code<>'' then select id into v_referrer_id from public.profiles where upper(referral_code)=v_referral_code limit 1;
-  if v_referrer_id is not null and v_referrer_id<>new.id then insert into public.referrals(referrer_id,referred_user_id,referral_code) values(v_referrer_id,new.id,v_referral_code) on conflict(referrer_id,referred_user_id) do nothing; end if;
+  if v_referrer_id is not null and v_referrer_id<>new.id then insert into public.referrals(referrer_id,referred_user_id,referral_code) values(v_referrer_id,new.id,v_referral_code) on conflict(referred_user_id) do nothing; end if;
  end if; return new;
 end; $$;
 
@@ -329,7 +329,7 @@ begin
  if v_referral_code<>'' then
   select id into v_referrer_id from public.profiles where upper(referral_code)=v_referral_code limit 1;
   if v_referrer_id is not null and v_referrer_id<>new.id then
-   insert into public.referrals(referrer_id,referred_user_id,referral_code) values(v_referrer_id,new.id,v_referral_code) on conflict(referrer_id,referred_user_id) do nothing;
+   insert into public.referrals(referrer_id,referred_user_id,referral_code) values(v_referrer_id,new.id,v_referral_code) on conflict(referred_user_id) do nothing;
   end if;
  end if;
  return new;
