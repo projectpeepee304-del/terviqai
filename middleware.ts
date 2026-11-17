@@ -8,12 +8,12 @@ export async function middleware(req:NextRequest){
  const supabase=createServerClient(url,key,{cookies:{getAll(){return req.cookies.getAll();},setAll(cookiesToSet){cookiesToSet.forEach(({name,value})=>req.cookies.set(name,value));response=NextResponse.next({request:{headers}});cookiesToSet.forEach(({name,value,options})=>response.cookies.set(name,value,options));}}});
  const {data:{user}}=await supabase.auth.getUser();
  if(user){
-  const {data:profile}=await supabase.from("profiles").select("account_status").eq("id",user.id).maybeSingle();
-  if(profile?.account_status!=="active"){
+  const {data:profile,error:profileError}=await supabase.from("profiles").select("account_status").eq("id",user.id).maybeSingle();
+  if(!profileError&&profile?.account_status!=="active"){
    await supabase.auth.signOut();
    const destination=new URL("/login?reason=suspended",req.url);
    const redirect=NextResponse.redirect(destination);
-   response.cookies.getAll().forEach(cookie=>redirect.cookies.set(cookie.name,"",{...cookie, maxAge:0}));
+   response.cookies.getAll().forEach(cookie=>redirect.cookies.set(cookie.name,"",{path:cookie.path||"/",maxAge:0}));
    return redirect;
   }
  }
