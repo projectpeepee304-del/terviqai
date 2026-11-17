@@ -2,9 +2,11 @@
 import Link from "next/link";
 import {usePathname,useRouter} from "next/navigation";
 import {createContext,useEffect,useState} from "react";
-import {Bell,Sun,Moon,UserRound,Home,ChartNoAxesCombined,Gift,Sprout,LifeBuoy,Workflow,Wallet,Users,HelpCircle,Info,ChevronRight} from "lucide-react";\nimport {markNotificationRead} from "../actions";
+import {Bell,Sun,Moon,UserRound,Home,ChartNoAxesCombined,Gift,Sprout,LifeBuoy,Workflow,Wallet,Users,HelpCircle,Info,ChevronRight} from "lucide-react";
+import {markNotificationRead} from "../actions";
 type Transaction={id:string;type:string;amount:number;status:string;created_at:string};
-type Notice={id:string;title:string;body:string;created_at:string;read_at:string|null;requires_action:boolean;action_url:string|null};\ntype UserInfo={userName:string;email:string;phone:string;dateOfBirth:string;uid:string;referralCode:string;availableBalance:number;referralBalance:number;totalInvested:number;currentProfit:number;referralEarned:number;friendsReferred:number;transactions:Transaction[];notices:Notice[]};
+type Notice={id:string;title:string;body:string;created_at:string;read_at:string|null;requires_action:boolean;action_url:string|null};
+type UserInfo={userName:string;email:string;phone:string;dateOfBirth:string;uid:string;referralCode:string;availableBalance:number;referralBalance:number;totalInvested:number;currentProfit:number;referralEarned:number;friendsReferred:number;transactions:Transaction[];notices:Notice[]};
 export const DashboardUserContext=createContext<UserInfo>({userName:"John Doe",email:"john.doe@terviqai.com",phone:"",dateOfBirth:"",uid:"",notices:[],referralCode:"TERVIQ-JD50",availableBalance:50,referralBalance:50,totalInvested:0,currentProfit:0,referralEarned:0,friendsReferred:0,transactions:[]});
 type Props=UserInfo&{children:React.ReactNode};
 const nav=[{label:"Home",href:"/dashboard",Icon:Home},{label:"Invest",href:"/dashboard/invest",Icon:ChartNoAxesCombined},{label:"Referral",href:"/dashboard/referral",Icon:Gift},{label:"Profile",href:"/dashboard/profile",Icon:UserRound}];
