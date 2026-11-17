@@ -75,3 +75,5 @@ create or replace function public.admin_add_admin(p_email text) returns void lan
 create or replace function public.admin_remove_admin(p_email text) returns void language sql security invoker set search_path='' as $$ select private.remove_admin_email(p_email) $$;
 revoke all on function public.admin_list_admins(),public.admin_add_admin(text),public.admin_remove_admin(text) from public,anon;
 grant execute on function public.admin_list_admins(),public.admin_add_admin(text),public.admin_remove_admin(text) to authenticated;
+
+grant execute on function private.list_users() to authenticated;
