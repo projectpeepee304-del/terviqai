@@ -20,7 +20,8 @@ export default async function DashboardLayout({children}:{children:React.ReactNo
    supabase.from("wallets").select("available_balance,referral_balance").eq("user_id",user.id).maybeSingle(),
    supabase.from("investments").select("principal_amount,profit_amount").eq("user_id",user.id).in("status",["active","matured"]),
    supabase.from("referrals").select("commission_amount,status").eq("referrer_id",user.id),
-   supabase.from("transactions").select("id,type,amount,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100)
+   supabase.from("transactions").select("id,type,amount,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100),
+   supabase.from("notifications").select("id,title,body,created_at,read_at,requires_action,action_url").eq("user_id",user.id).order("created_at",{ascending:false}).limit(20)
   ]);
   if(profileResult.data?.full_name)userName=profileResult.data.full_name;if(profileResult.data?.phone)phone=profileResult.data.phone;if(profileResult.data?.date_of_birth)dateOfBirth=profileResult.data.date_of_birth;if(profileResult.data?.uid)uid=profileResult.data.uid;if(profileResult.data?.referral_code)referralCode=profileResult.data.referral_code;
   availableBalance=Number(walletResult.data?.available_balance||0);referralBalance=Number(walletResult.data?.referral_balance||0);
