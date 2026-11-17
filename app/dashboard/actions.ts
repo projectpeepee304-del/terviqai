@@ -15,18 +15,20 @@ export async function signIn(formData:FormData){
 }
 export async function signUp(formData:FormData){
  const password=String(formData.get("password")||"");if(password.length<6||password.length>20||!/[A-Za-z]/.test(password)||!/[0-9]/.test(password))return {error:"Password must be 6–20 characters and contain at least one letter and one number."};
+ const gender=String(formData.get("gender")||"");if(!["Male","Female"].includes(gender))return {error:"Please select your gender: Male or Female."};
  if(!isSupabaseConfigured()) return {error:"Account registration is being configured. Please try again shortly."};
  const supabase=await createClient();
- const {error}=await supabase.auth.signUp({email:String(formData.get("email")||"").trim(),password:String(formData.get("password")||""),options:{emailRedirectTo:(process.env.NEXT_PUBLIC_SITE_URL||"https://terviqai.com")+"/auth/callback?next=%2Fdashboard",data:{full_name:String(formData.get("full_name")||"").trim(),phone:String(formData.get("phone")||"").trim(),referral_code:String(formData.get("referral_code")||"").trim()}}});
+ const {error}=await supabase.auth.signUp({email:String(formData.get("email")||"").trim(),password:String(formData.get("password")||""),options:{emailRedirectTo:(process.env.NEXT_PUBLIC_SITE_URL||"https://terviqai.com")+"/auth/callback?next=%2Fdashboard",data:{full_name:String(formData.get("full_name")||"").trim(),phone:String(formData.get("phone")||"").trim(),gender,referral_code:String(formData.get("referral_code")||"").trim()}}});
  if(error){if(/database error saving new user/i.test(error.message))return {error:"We could not create your account at this moment. Please try again shortly."};return {error:error.message}}return {success:"Check your email to confirm your Terviq AI account, then sign in."};
 }
 export async function signOut(){if(isSupabaseConfigured()){const supabase=await createClient();await supabase.auth.signOut();}redirect("/login");}
 export async function saveProfile(formData:FormData){
  if(!isSupabaseConfigured())return {error:"Connect your Supabase project to save profile changes."};
  const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();if(!user)return {error:"Please sign in again."};
- const full_name=String(formData.get("full_name")||"").trim(),phone=String(formData.get("phone")||"").trim(),date_of_birth=String(formData.get("date_of_birth")||"")||null,email=String(formData.get("email")||"").trim();
+ const full_name=String(formData.get("full_name")||"").trim(),phone=String(formData.get("phone")||"").trim(),date_of_birth=String(formData.get("date_of_birth")||"")||null,email=String(formData.get("email")||"").trim(),gender=String(formData.get("gender")||"");
+ if(!["Male","Female"].includes(gender))return {error:"Please select your gender: Male or Female."};
  if(date_of_birth){const dob=new Date(date_of_birth+"T00:00:00");const latestAllowed=new Date();latestAllowed.setFullYear(latestAllowed.getFullYear()-12);if(Number.isNaN(dob.getTime())||dob>latestAllowed)return {error:"You must be at least 12 years old to use this account."};}
- const {error}=await supabase.from("profiles").update({full_name,phone,date_of_birth,email,updated_at:new Date().toISOString()}).eq("id",user.id);
+ const {error}=await supabase.from("profiles").update({full_name,phone,date_of_birth,email,gender,updated_at:new Date().toISOString()}).eq("id",user.id);
  if(error)return {error:error.message};
  if(email&&email!==user.email){const {error:emailError}=await supabase.auth.updateUser({email});if(emailError)return {error:emailError.message};return {success:"Profile saved. Confirm your new email address using the message we sent you."};}
  return {success:"Your profile has been saved."};

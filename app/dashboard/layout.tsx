@@ -8,7 +8,7 @@ export const metadata:Metadata={title:{default:"Member Dashboard",template:"%s |
 export default async function DashboardLayout({children}:{children:React.ReactNode}){
  const pathname=(await headers()).get("x-terviq-pathname")||"";
  if(pathname.startsWith("/dashboard/admin"))return children;
- let userName="John Doe",email="john.doe@terviqai.com",phone="",dateOfBirth="",uid="",referralCode="TERVIQ-JD50";
+ let userName="John Doe",email="john.doe@terviqai.com",phone="",dateOfBirth="",gender="",uid="",referralCode="TERVIQ-JD50";
  let availableBalance=50,referralBalance=50,totalInvested=0,currentProfit=0,referralEarned=0,friendsReferred=0,qualifiedReferrals=0;
  let transactions:{id:string;type:string;amount:number;status:string;created_at:string}[]=[];
  let notices:{id:string;title:string;body:string;created_at:string;read_at:string|null;requires_action:boolean;action_url:string|null}[]=[];
@@ -16,14 +16,14 @@ export default async function DashboardLayout({children}:{children:React.ReactNo
   const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();if(!user)redirect("/login?next=/dashboard");
   email=user.email||email;userName=String(user.user_metadata?.full_name||user.user_metadata?.name||"John Doe");
   const [profileResult,walletResult,investmentResult,referralResult,transactionResult,noticeResult]=await Promise.all([
-   supabase.from("profiles").select("full_name,phone,date_of_birth,uid,referral_code").eq("id",user.id).maybeSingle(),
+   supabase.from("profiles").select("full_name,phone,date_of_birth,gender,uid,referral_code").eq("id",user.id).maybeSingle(),
    supabase.from("wallets").select("available_balance,referral_balance").eq("user_id",user.id).maybeSingle(),
    supabase.from("investments").select("principal_amount,profit_amount").eq("user_id",user.id).in("status",["active","matured"]),
    supabase.from("referrals").select("commission_amount,status").eq("referrer_id",user.id),
    supabase.from("transactions").select("id,type,amount,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100),
    supabase.from("notifications").select("id,title,body,created_at,read_at,requires_action,action_url").eq("user_id",user.id).order("created_at",{ascending:false}).limit(20)
   ]);
-  if(profileResult.data?.full_name)userName=profileResult.data.full_name;if(profileResult.data?.phone)phone=profileResult.data.phone;if(profileResult.data?.date_of_birth)dateOfBirth=profileResult.data.date_of_birth;if(profileResult.data?.uid)uid=profileResult.data.uid;if(profileResult.data?.referral_code)referralCode=profileResult.data.referral_code;
+  if(profileResult.data?.full_name)userName=profileResult.data.full_name;if(profileResult.data?.phone)phone=profileResult.data.phone;if(profileResult.data?.date_of_birth)dateOfBirth=profileResult.data.date_of_birth;if(profileResult.data?.gender)gender=profileResult.data.gender;if(profileResult.data?.uid)uid=profileResult.data.uid;if(profileResult.data?.referral_code)referralCode=profileResult.data.referral_code;
   availableBalance=Number(walletResult.data?.available_balance||0);referralBalance=Number(walletResult.data?.referral_balance||0);
   totalInvested=(investmentResult.data||[]).reduce((sum,row)=>sum+Number(row.principal_amount||0),0);
   currentProfit=(investmentResult.data||[]).reduce((sum,row)=>sum+Number(row.profit_amount||0),0);
@@ -31,5 +31,5 @@ export default async function DashboardLayout({children}:{children:React.ReactNo
   transactions=(transactionResult.data||[]).map(row=>({...row,amount:Number(row.amount||0)}));
   notices=(noticeResult.data||[]).filter(row=>!row.requires_action||!row.read_at).map(row=>({...row,requires_action:!!row.requires_action,action_url:row.action_url||null}));
  }
- return <DashboardShell userName={userName} email={email} phone={phone} dateOfBirth={dateOfBirth} uid={uid} notices={notices} referralCode={referralCode} availableBalance={availableBalance} referralBalance={referralBalance} totalInvested={totalInvested} currentProfit={currentProfit} referralEarned={referralEarned} friendsReferred={friendsReferred} qualifiedReferrals={qualifiedReferrals} transactions={transactions}>{children}</DashboardShell>;
+ return <DashboardShell userName={userName} email={email} phone={phone} dateOfBirth={dateOfBirth} gender={gender} uid={uid} notices={notices} referralCode={referralCode} availableBalance={availableBalance} referralBalance={referralBalance} totalInvested={totalInvested} currentProfit={currentProfit} referralEarned={referralEarned} friendsReferred={friendsReferred} qualifiedReferrals={qualifiedReferrals} transactions={transactions}>{children}</DashboardShell>;
 }

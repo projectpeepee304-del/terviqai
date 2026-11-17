@@ -306,3 +306,32 @@ $$;
 revoke all on function private.is_admin() from public,anon;
 grant execute on function private.is_admin() to authenticated;
 notify pgrst,'reload schema';
+
+-- Gender is required for new accounts and collected from existing members on next dashboard visit.
+alter table public.profiles add column if not exists gender text;
+do $$
+begin
+ if not exists(select 1 from pg_constraint where conrelid='public.profiles'::regclass and conname='profiles_gender_allowed') then
+  alter table public.profiles add constraint profiles_gender_allowed check (gender is null or gender in ('Male','Female'));
+ end if;
+end $$;
+create or replace function public.handle_new_member()
+returns trigger language plpgsql security definer set search_path to 'public' as $function$
+declare v_referrer_id uuid; v_referral_code text; v_gender text;
+begin
+ v_gender:=trim(coalesce(new.raw_user_meta_data->>'gender',''));
+ if v_gender not in ('Male','Female') then raise exception 'Please select Male or Female to create your account'; end if;
+ insert into public.profiles(id,uid,full_name,email,phone,gender)
+ values(new.id,'TVQ-'||upper(substr(replace(gen_random_uuid()::text,'-',''),1,10)),coalesce(new.raw_user_meta_data->>'full_name',''),new.email,new.raw_user_meta_data->>'phone',v_gender)
+ on conflict(id) do update set email=excluded.email,gender=coalesce(public.profiles.gender,excluded.gender);
+ insert into public.wallets(user_id) values(new.id) on conflict(user_id) do nothing;
+ v_referral_code:=upper(trim(coalesce(new.raw_user_meta_data->>'referral_code','')));
+ if v_referral_code<>'' then
+  select id into v_referrer_id from public.profiles where upper(referral_code)=v_referral_code limit 1;
+  if v_referrer_id is not null and v_referrer_id<>new.id then
+   insert into public.referrals(referrer_id,referred_user_id,referral_code) values(v_referrer_id,new.id,v_referral_code) on conflict(referrer_id,referred_user_id) do nothing;
+  end if;
+ end if;
+ return new;
+end; $function$;
+revoke all on function public.handle_new_member() from public,anon,authenticated;

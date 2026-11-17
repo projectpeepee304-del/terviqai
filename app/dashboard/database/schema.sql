@@ -8,6 +8,7 @@ create table if not exists public.profiles (
  email text,
  phone text,
  date_of_birth date,
+ gender text check (gender is null or gender in ('Male','Female')),
  referral_code text not null unique default ('TVQ-' || upper(substr(replace(gen_random_uuid()::text,'-',''),1,8))),
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now()
@@ -75,10 +76,13 @@ as $
 declare
  v_referrer_id uuid;
  v_referral_code text;
+ v_gender text;
 begin
- insert into public.profiles (id,full_name,email,phone)
- values (new.id,coalesce(new.raw_user_meta_data->>'full_name',''),new.email,new.raw_user_meta_data->>'phone')
- on conflict (id) do update set email=excluded.email;
+ v_gender:=trim(coalesce(new.raw_user_meta_data->>'gender',''));
+ if v_gender not in ('Male','Female') then raise exception 'Please select Male or Female to create your account'; end if;
+ insert into public.profiles (id,full_name,email,phone,gender)
+ values (new.id,coalesce(new.raw_user_meta_data->>'full_name',''),new.email,new.raw_user_meta_data->>'phone',v_gender)
+ on conflict (id) do update set email=excluded.email,gender=coalesce(public.profiles.gender,excluded.gender);
  insert into public.wallets (user_id) values (new.id) on conflict (user_id) do nothing;
  v_referral_code := upper(trim(coalesce(new.raw_user_meta_data->>'referral_code','')));
  if v_referral_code <> '' then
