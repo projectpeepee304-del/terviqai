@@ -208,3 +208,7 @@ revoke all on function public.submit_kyc(text,text,jsonb) from public,anon;
 grant execute on function public.submit_kyc(text,text,jsonb) to authenticated;
 
 notify pgrst,'reload schema';
+
+-- Preserve the most recent known login IP before invalidating a suspended member's sessions.
+alter table public.profiles add column if not exists last_login_ip text;
+-- The live private.set_user_status and private.user_details definitions also persist/read this value.
