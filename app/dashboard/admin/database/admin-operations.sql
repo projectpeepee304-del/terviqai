@@ -266,3 +266,17 @@ create or replace function public.keepalive_ping() returns timestamptz language 
 revoke all on function public.keepalive_ping() from public;
 grant execute on function public.keepalive_ping() to anon,authenticated,service_role;
 notify pgrst,'reload schema';
+
+-- Keep the exposed RPC as SECURITY INVOKER; its guarded implementation stays private.
+create or replace function private.acknowledge_kyc_alert(p_notification_id uuid) returns void language plpgsql security definer set search_path='' as $$
+begin
+ if auth.uid() is null then raise exception 'Authentication required'; end if;
+ update public.notifications set read_at=coalesce(read_at,now()) where id=p_notification_id and user_id=auth.uid() and requires_action=true and action_url='/dashboard/kyc';
+ if not found then raise exception 'Verification alert not found'; end if;
+end; $$;
+revoke all on function private.acknowledge_kyc_alert(uuid) from public,anon,authenticated;
+grant execute on function private.acknowledge_kyc_alert(uuid) to authenticated;
+create or replace function public.acknowledge_kyc_alert(p_notification_id uuid) returns void language sql security invoker set search_path='' as $$ select private.acknowledge_kyc_alert(p_notification_id) $$;
+revoke all on function public.acknowledge_kyc_alert(uuid) from public,anon;
+grant execute on function public.acknowledge_kyc_alert(uuid) to authenticated;
+notify pgrst,'reload schema';
