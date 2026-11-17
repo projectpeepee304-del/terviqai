@@ -146,7 +146,7 @@ declare
  v_referral public.referrals%rowtype;
  v_commission numeric(18,2);
 begin
- if auth.role() <> 'service_role' then
+ if current_setting('request.jwt.claim.role',true) <> 'service_role' then
   raise exception 'This operation is restricted to the trusted server.';
  end if;
  if p_first_investment_amount <= 0 or coalesce(p_transaction_reference,'') = '' then
