@@ -16,6 +16,8 @@
 .adm-admin-tag{display:inline-flex;align-items:center;padding:6px 9px;border-radius:5px;background:#153f2b;color:#fff;font-size:10px;font-weight:900;letter-spacing:1px;border:1px solid #2e8a55}
 :root[data-terviq-admin-theme=dark] .adm-admin-tag{background:#b8e986;color:#102418;border-color:#b8e986}
 .adm-protected-label{font-size:10px;color:var(--a-muted);font-weight:700}
+.adm-user-actions .adm-protected-label{white-space:normal;max-width:120px;line-height:1.4}
+.adm-user-actions button:disabled{opacity:.38;cursor:not-allowed}
 .adm-uid{font-family:ui-monospace,monospace;font-weight:800;letter-spacing:.4px;color:var(--a-accent)!important}
 .adm-member-tag{font-size:9px;color:var(--a-muted);font-weight:700}
 .adm-user-modal{max-height:min(88vh,780px);overflow:auto;width:min(560px,100%)}

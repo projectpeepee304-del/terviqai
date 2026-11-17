@@ -213,3 +213,56 @@ notify pgrst,'reload schema';
 -- Preserve the most recent known login IP before invalidating a suspended member's sessions.
 alter table public.profiles add column if not exists last_login_ip text;
 -- The live private.set_user_status and private.user_details definitions also persist/read this value.
+
+-- Additional admin controls, KYC alert acknowledgement and scheduled database keepalive.
+create or replace function private.set_user_status(p_user_id uuid,p_status text) returns void language plpgsql security definer set search_path='' as $$
+begin
+ if not private.is_admin() then raise exception 'Administrator access only'; end if;
+ if p_status not in ('active','suspended') then raise exception 'Invalid status'; end if;
+ if p_user_id=auth.uid() then raise exception 'You cannot suspend or reactivate your own administrator account'; end if;
+ update public.profiles set account_status=p_status,updated_at=now(),last_login_ip=coalesce((select s.ip::text from auth.sessions s where s.user_id=p_user_id order by s.created_at desc limit 1),last_login_ip) where id=p_user_id;
+ if not found then raise exception 'User not found'; end if;
+ if p_status='suspended' then update auth.users set banned_until=now()+interval '100 years' where id=p_user_id; delete from auth.sessions where user_id=p_user_id; else update auth.users set banned_until=null where id=p_user_id; end if;
+ insert into public.admin_audit_logs(actor_id,action,target,details) values(auth.uid(),'user.status_changed',p_user_id::text,jsonb_build_object('status',p_status,'sessions_revoked',p_status='suspended'));
+end; $$;
+revoke all on function private.set_user_status(uuid,text) from public,anon,authenticated;
+grant execute on function private.set_user_status(uuid,text) to authenticated;
+create or replace function private.downgrade_user_admin(p_user_id uuid) returns void language plpgsql security definer set search_path='' as $$
+declare v_email text;
+begin
+ if not private.is_admin() then raise exception 'Administrator access only'; end if;
+ if p_user_id=auth.uid() then raise exception 'You cannot downgrade your own administrator account'; end if;
+ select email::text into v_email from auth.users where id=p_user_id;
+ if v_email is null then raise exception 'User not found'; end if;
+ if not private.is_user_admin(p_user_id) then raise exception 'This account is not an administrator'; end if;
+ update auth.users set raw_app_meta_data=coalesce(raw_app_meta_data,'{}'::jsonb)-'role' where id=p_user_id;
+ update public.app_settings s set value=jsonb_set(coalesce(s.value,'{}'::jsonb),'{emails}',coalesce((select jsonb_agg(to_jsonb(x.email)) from jsonb_array_elements_text(coalesce(s.value->'emails','[]'::jsonb)) as x(email) where lower(x.email)<>lower(v_email)),'[]'::jsonb),true),updated_at=now() where s.key='admin_emails';
+ insert into public.admin_audit_logs(actor_id,action,target,details) values(auth.uid(),'admin.downgraded',p_user_id::text,jsonb_build_object('email',v_email));
+end; $$;
+revoke all on function private.downgrade_user_admin(uuid) from public,anon,authenticated;
+grant execute on function private.downgrade_user_admin(uuid) to authenticated;
+create or replace function public.admin_downgrade_user(p_user_id uuid) returns void language sql security invoker set search_path='' as $$ select private.downgrade_user_admin(p_user_id) $$;
+revoke all on function public.admin_downgrade_user(uuid) from public,anon;
+grant execute on function public.admin_downgrade_user(uuid) to authenticated;
+create or replace function private.request_user_kyc(p_user_id uuid) returns void language plpgsql security definer set search_path='' as $$
+begin
+ if not private.is_admin() then raise exception 'Administrator access only'; end if;
+ if exists(select 1 from public.profiles where id=p_user_id and kyc_status='approved') then raise exception 'KYC is already approved'; end if;
+ update public.profiles set kyc_status='requested',updated_at=now() where id=p_user_id;
+ if not exists(select 1 from public.notifications where user_id=p_user_id and requires_action=true and action_url='/dashboard/kyc' and read_at is null) then perform private.send_user_alert(p_user_id,'Identity verification required','Please submit your identity documents using the secure KYC submission link. This request remains visible until you continue to verification.','/dashboard/kyc',true); end if;
+ insert into public.admin_audit_logs(actor_id,action,target) values(auth.uid(),'kyc.requested',p_user_id::text);
+end; $$;
+revoke all on function private.request_user_kyc(uuid) from public,anon,authenticated;
+grant execute on function private.request_user_kyc(uuid) to authenticated;
+create or replace function public.acknowledge_kyc_alert(p_notification_id uuid) returns void language plpgsql security definer set search_path='' as $$
+begin
+ if auth.uid() is null then raise exception 'Authentication required'; end if;
+ update public.notifications set read_at=coalesce(read_at,now()) where id=p_notification_id and user_id=auth.uid() and requires_action=true and action_url='/dashboard/kyc';
+ if not found then raise exception 'Verification alert not found'; end if;
+end; $$;
+revoke all on function public.acknowledge_kyc_alert(uuid) from public,anon;
+grant execute on function public.acknowledge_kyc_alert(uuid) to authenticated;
+create or replace function public.keepalive_ping() returns timestamptz language sql stable set search_path='' as $$ select now() $$;
+revoke all on function public.keepalive_ping() from public;
+grant execute on function public.keepalive_ping() to anon,authenticated,service_role;
+notify pgrst,'reload schema';

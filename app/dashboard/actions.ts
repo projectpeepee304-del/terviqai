@@ -8,7 +8,7 @@ export async function signIn(formData:FormData){
  if(!isSupabaseConfigured()) return {error:"Account access is being configured. Please try again shortly."};
  const supabase=await createClient();
  const {error}=await supabase.auth.signInWithPassword({email:String(formData.get("email")||"").trim(),password:String(formData.get("password")||"")});
- if(error) return {error:error.message};
+ if(error){const message=/user is banned|banned until|account is suspended/i.test(error.message)?"Your account is suspended. Please contact Terviq AI support.":error.message;return {error:message}}
  const {data:{user}}=await supabase.auth.getUser();
  if(user){const {data:profile}=await supabase.from("profiles").select("account_status").eq("id",user.id).maybeSingle();if(profile?.account_status==="suspended"){await supabase.auth.signOut();return {error:"This account has been suspended. Please contact Terviq AI support."};}const {data:isAdmin}=await supabase.rpc("is_terviq_admin");redirect(isAdmin===true?"/dashboard/admin":"/dashboard");}
  redirect("/dashboard");
@@ -18,13 +18,14 @@ export async function signUp(formData:FormData){
  if(!isSupabaseConfigured()) return {error:"Account registration is being configured. Please try again shortly."};
  const supabase=await createClient();
  const {error}=await supabase.auth.signUp({email:String(formData.get("email")||"").trim(),password:String(formData.get("password")||""),options:{emailRedirectTo:(process.env.NEXT_PUBLIC_SITE_URL||"https://terviqai.com")+"/auth/callback?next=%2Fdashboard",data:{full_name:String(formData.get("full_name")||"").trim(),phone:String(formData.get("phone")||"").trim(),referral_code:String(formData.get("referral_code")||"").trim()}}});
- if(error)return {error:error.message};return {success:"Check your email to confirm your Terviq AI account, then sign in."};
+ if(error){if(/database error saving new user/i.test(error.message))return {error:"We could not create your account at this moment. Please try again shortly."};return {error:error.message}}return {success:"Check your email to confirm your Terviq AI account, then sign in."};
 }
 export async function signOut(){if(isSupabaseConfigured()){const supabase=await createClient();await supabase.auth.signOut();}redirect("/login");}
 export async function saveProfile(formData:FormData){
  if(!isSupabaseConfigured())return {error:"Connect your Supabase project to save profile changes."};
  const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();if(!user)return {error:"Please sign in again."};
  const full_name=String(formData.get("full_name")||"").trim(),phone=String(formData.get("phone")||"").trim(),date_of_birth=String(formData.get("date_of_birth")||"")||null,email=String(formData.get("email")||"").trim();
+ if(date_of_birth){const dob=new Date(date_of_birth+"T00:00:00");const latestAllowed=new Date();latestAllowed.setFullYear(latestAllowed.getFullYear()-12);if(Number.isNaN(dob.getTime())||dob>latestAllowed)return {error:"You must be at least 12 years old to use this account."};}
  const {error}=await supabase.from("profiles").update({full_name,phone,date_of_birth,email,updated_at:new Date().toISOString()}).eq("id",user.id);
  if(error)return {error:error.message};
  if(email&&email!==user.email){const {error:emailError}=await supabase.auth.updateUser({email});if(emailError)return {error:emailError.message};return {success:"Profile saved. Confirm your new email address using the message we sent you."};}
@@ -43,6 +44,7 @@ export async function sendPasswordReset(formData:FormData){
  return error?{error:error.message}:{success:"If an account exists for this email, a password reset link has been sent."};
 }
 
+export async function acknowledgeKycAlert(id:string){if(!isSupabaseConfigured())return {error:"Notifications are unavailable."};const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();if(!user)return {error:"Please sign in again."};const {error}=await supabase.rpc("acknowledge_kyc_alert",{p_notification_id:id});return error?{error:error.message}:{success:true};}
 export async function markNotificationRead(id:string){
  if(!isSupabaseConfigured())return {error:"Notifications are unavailable."};
  const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();if(!user)return {error:"Please sign in again."};

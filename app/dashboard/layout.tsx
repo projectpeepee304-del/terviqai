@@ -9,7 +9,7 @@ export default async function DashboardLayout({children}:{children:React.ReactNo
  const pathname=(await headers()).get("x-terviq-pathname")||"";
  if(pathname.startsWith("/dashboard/admin"))return children;
  let userName="John Doe",email="john.doe@terviqai.com",phone="",dateOfBirth="",uid="",referralCode="TERVIQ-JD50";
- let availableBalance=50,referralBalance=50,totalInvested=0,currentProfit=0,referralEarned=0,friendsReferred=0;
+ let availableBalance=50,referralBalance=50,totalInvested=0,currentProfit=0,referralEarned=0,friendsReferred=0,qualifiedReferrals=0;
  let transactions:{id:string;type:string;amount:number;status:string;created_at:string}[]=[];
  let notices:{id:string;title:string;body:string;created_at:string;read_at:string|null;requires_action:boolean;action_url:string|null}[]=[];
  if(isSupabaseConfigured()){
@@ -27,9 +27,9 @@ export default async function DashboardLayout({children}:{children:React.ReactNo
   availableBalance=Number(walletResult.data?.available_balance||0);referralBalance=Number(walletResult.data?.referral_balance||0);
   totalInvested=(investmentResult.data||[]).reduce((sum,row)=>sum+Number(row.principal_amount||0),0);
   currentProfit=(investmentResult.data||[]).reduce((sum,row)=>sum+Number(row.profit_amount||0),0);
-  friendsReferred=(referralResult.data||[]).length;referralEarned=(referralResult.data||[]).filter(row=>row.status==="credited").reduce((sum,row)=>sum+Number(row.commission_amount||0),0);
+  friendsReferred=(referralResult.data||[]).length;qualifiedReferrals=(referralResult.data||[]).filter(row=>["qualified","credited","completed","paid"].includes(String(row.status||"").toLowerCase())).length;referralEarned=(referralResult.data||[]).filter(row=>row.status==="credited").reduce((sum,row)=>sum+Number(row.commission_amount||0),0);
   transactions=(transactionResult.data||[]).map(row=>({...row,amount:Number(row.amount||0)}));
   notices=(noticeResult.data||[]).filter(row=>!row.requires_action||!row.read_at).map(row=>({...row,requires_action:!!row.requires_action,action_url:row.action_url||null}));
  }
- return <DashboardShell userName={userName} email={email} phone={phone} dateOfBirth={dateOfBirth} uid={uid} notices={notices} referralCode={referralCode} availableBalance={availableBalance} referralBalance={referralBalance} totalInvested={totalInvested} currentProfit={currentProfit} referralEarned={referralEarned} friendsReferred={friendsReferred} transactions={transactions}>{children}</DashboardShell>;
+ return <DashboardShell userName={userName} email={email} phone={phone} dateOfBirth={dateOfBirth} uid={uid} notices={notices} referralCode={referralCode} availableBalance={availableBalance} referralBalance={referralBalance} totalInvested={totalInvested} currentProfit={currentProfit} referralEarned={referralEarned} friendsReferred={friendsReferred} qualifiedReferrals={qualifiedReferrals} transactions={transactions}>{children}</DashboardShell>;
 }
