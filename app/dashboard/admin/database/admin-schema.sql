@@ -27,7 +27,7 @@ create or replace function private.is_admin() returns boolean language sql stabl
  select coalesce((auth.jwt()->'app_metadata'->>'role')='admin',false) or exists(select 1 from public.app_settings s where s.key='admin_emails' and lower(coalesce(auth.jwt()->>'email',''))=any(array(select lower(jsonb_array_elements_text(s.value->'emails')))))
 $$;
 create or replace function private.list_users() returns table(id uuid,email text,full_name text,created_at timestamptz,account_status text) language plpgsql security definer set search_path='' as $$
-begin if not private.is_admin() then raise exception 'Administrator access only'; end if; return query select u.id,u.email,coalesce(p.full_name,u.raw_user_meta_data->>'full_name',''),u.created_at,coalesce(p.account_status,'active') from auth.users u left join public.profiles p on p.id=u.id order by u.created_at desc limit 1000; end; $$;
+begin if not private.is_admin() then raise exception 'Administrator access only'; end if; return query select u.id,u.email::text,coalesce(p.full_name,u.raw_user_meta_data->>'full_name','')::text,u.created_at,coalesce(p.account_status,'active')::text from auth.users u left join public.profiles p on p.id=u.id order by u.created_at desc limit 1000; end; $$;
 create or replace function private.set_user_status(p_user_id uuid,p_status text) returns void language plpgsql security definer set search_path='' as $$
 begin if not private.is_admin() then raise exception 'Administrator access only'; end if; if p_status not in ('active','suspended') then raise exception 'Invalid status'; end if; update public.profiles set account_status=p_status,updated_at=now() where id=p_user_id; if not found then raise exception 'User not found'; end if; insert into public.admin_audit_logs(actor_id,action,target,details) values(auth.uid(),'user.status_changed',p_user_id::text,jsonb_build_object('status',p_status)); end; $$;
 create or replace function private.delete_user(p_user_id uuid) returns void language plpgsql security definer set search_path='' as $$
@@ -46,3 +46,32 @@ create or replace function public.admin_set_referral_rate(p_rate numeric) return
 create or replace function public.admin_overview() returns jsonb language sql security invoker set search_path='' as $$ select private.overview() $$;
 revoke all on function public.is_terviq_admin(),public.admin_list_users(),public.admin_set_user_status(uuid,text),public.admin_delete_user(uuid),public.admin_set_referral_rate(numeric),public.admin_overview() from public,anon;
 grant execute on function public.is_terviq_admin(),public.admin_list_users(),public.admin_set_user_status(uuid,text),public.admin_delete_user(uuid),public.admin_set_referral_rate(numeric),public.admin_overview() to authenticated;
+
+
+-- Administrator access management: add email to the allowlist; the person then signs up/signs in themselves.
+create or replace function private.list_admin_emails() returns table(email text) language plpgsql security definer set search_path='' as $$
+begin if not private.is_admin() then raise exception 'Administrator access only'; end if; return query select lower(jsonb_array_elements_text(coalesce(s.value->'emails','[]'::jsonb))) from public.app_settings s where s.key='admin_emails' order by 1; end; $$;
+create or replace function private.add_admin_email(p_email text) returns void language plpgsql security definer set search_path='' as $$
+declare v_email text := lower(trim(coalesce(p_email,'')));
+begin
+ if not private.is_admin() then raise exception 'Administrator access only'; end if;
+ if v_email !~* '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$' then raise exception 'Enter a valid email address'; end if;
+ insert into public.app_settings(key,value,updated_by,updated_at) values('admin_emails',jsonb_build_object('emails',jsonb_build_array(v_email)),auth.uid(),now())
+ on conflict(key) do update set value=jsonb_set(coalesce(public.app_settings.value,'{}'::jsonb),'{emails}',(select coalesce(jsonb_agg(distinct lower(e)),'[]'::jsonb) from (select jsonb_array_elements_text(coalesce(public.app_settings.value->'emails','[]'::jsonb)) e union all select v_email) q),true),updated_by=auth.uid(),updated_at=now();
+ insert into public.admin_audit_logs(actor_id,action,target,details) values(auth.uid(),'admin.access_granted',v_email,'{}'::jsonb);
+end; $$;
+create or replace function private.remove_admin_email(p_email text) returns void language plpgsql security definer set search_path='' as $$
+declare v_email text := lower(trim(coalesce(p_email,'')));
+begin
+ if not private.is_admin() then raise exception 'Administrator access only'; end if;
+ if v_email=lower(coalesce(auth.jwt()->>'email','')) then raise exception 'You cannot remove your own administrator access'; end if;
+ update public.app_settings s set value=jsonb_set(coalesce(s.value,'{}'::jsonb),'{emails}',(select coalesce(jsonb_agg(e),'[]'::jsonb) from jsonb_array_elements_text(coalesce(s.value->'emails','[]'::jsonb)) e where lower(e)<>v_email),true),updated_by=auth.uid(),updated_at=now() where s.key='admin_emails';
+ insert into public.admin_audit_logs(actor_id,action,target,details) values(auth.uid(),'admin.access_revoked',v_email,'{}'::jsonb);
+end; $$;
+revoke all on function private.list_admin_emails(),private.add_admin_email(text),private.remove_admin_email(text) from public,anon,authenticated;
+grant execute on function private.list_admin_emails(),private.add_admin_email(text),private.remove_admin_email(text) to authenticated;
+create or replace function public.admin_list_admins() returns table(email text) language sql security invoker set search_path='' as $$ select * from private.list_admin_emails() $$;
+create or replace function public.admin_add_admin(p_email text) returns void language sql security invoker set search_path='' as $$ select private.add_admin_email(p_email) $$;
+create or replace function public.admin_remove_admin(p_email text) returns void language sql security invoker set search_path='' as $$ select private.remove_admin_email(p_email) $$;
+revoke all on function public.admin_list_admins(),public.admin_add_admin(text),public.admin_remove_admin(text) from public,anon;
+grant execute on function public.admin_list_admins(),public.admin_add_admin(text),public.admin_remove_admin(text) to authenticated;
