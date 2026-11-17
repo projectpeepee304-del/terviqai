@@ -1,3 +1,11 @@
 import {createClient,isSupabaseConfigured} from "./server";
-export async function requireAdmin(){if(!isSupabaseConfigured())return {error:"Supabase is not configured."} as const;const s=await createClient();const {data:{user}}=await s.auth.getUser();if(!user)return {error:"Sign in required."} as const;const allow=(process.env.ADMIN_EMAILS||"").split(",").map(x=>x.trim().toLowerCase());if(user.app_metadata?.role!=="admin"&&(!user.email||!allow.includes(user.email.toLowerCase())))return {error:"Administrator access only."} as const;return {user} as const}
+export async function requireAdmin(){
+ if(!isSupabaseConfigured())return {error:"Supabase is not configured."} as const;
+ const s=await createClient();
+ const {data:{user}}=await s.auth.getUser();
+ if(!user)return {error:"Sign in required."} as const;
+ const {data,isError}=await s.rpc("is_terviq_admin");
+ if(isError||data!==true)return {error:"Administrator access only."} as const;
+ return {user} as const;
+}
 export const strongPassword=(p:string)=>p.length>=8&&/[A-Z]/.test(p)&&/[a-z]/.test(p)&&/[0-9]/.test(p)&&/[^A-Za-z0-9]/.test(p);
