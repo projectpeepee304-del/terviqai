@@ -5,7 +5,7 @@ export async function middleware(req:NextRequest){
  let response=NextResponse.next({request:{headers}});
  const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
  if(!url||!key)return response;
- const supabase=createServerClient(url,key,{cookies:{getAll(){return req.cookies.getAll();},setAll(cookiesToSet){cookiesToSet.forEach(({name,value})=>req.cookies.set(name,value));response=NextResponse.next({request:{headers}});cookiesToSet.forEach(({name,value,options})=>response.cookies.set(name,value,options));}}});
+ const supabase=createServerClient(url,key,{cookies:{getAll(){return req.cookies.getAll();},setAll(cookiesToSet:{name:string;value:string;options?:any}[]){cookiesToSet.forEach(({name,value})=>req.cookies.set(name,value));response=NextResponse.next({request:{headers}});cookiesToSet.forEach(({name,value,options})=>response.cookies.set(name,value,options));}}});
  const {data:{user}}=await supabase.auth.getUser();
  if(user){
   const {data:profile,error:profileError}=await supabase.from("profiles").select("account_status").eq("id",user.id).maybeSingle();
