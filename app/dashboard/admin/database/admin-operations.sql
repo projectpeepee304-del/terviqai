@@ -20,14 +20,14 @@ create table if not exists public.kyc_submissions(
  status text not null default 'submitted' check(status in ('submitted','approved','rejected')),
  submitted_at timestamptz not null default now(),reviewed_at timestamptz,reviewed_by uuid references auth.users(id) on delete set null
 );
-create index if not exists kyc_submissions_user_idx on public.kyc_submissions(user_id,submitted_at desc);
+create index if not exists kyc_submissions_user_idx on public.kyc_submissions(user_id,submitted_at desc);\ncreate index if not exists kyc_submissions_reviewed_by_idx on public.kyc_submissions(reviewed_by);
 alter table public.kyc_submissions enable row level security;
 revoke all on public.kyc_submissions from anon,authenticated;
 grant select,insert on public.kyc_submissions to authenticated;
 drop policy if exists "KYC user insert own" on public.kyc_submissions;
-create policy "KYC user insert own" on public.kyc_submissions for insert to authenticated with check(auth.uid()=user_id);
+create policy "KYC user insert own" on public.kyc_submissions for insert to authenticated with check((select auth.uid())=user_id);
 drop policy if exists "KYC user read own" on public.kyc_submissions;
-create policy "KYC user read own" on public.kyc_submissions for select to authenticated using(auth.uid()=user_id);
+create policy "KYC user read own" on public.kyc_submissions for select to authenticated using((select auth.uid())=user_id);
 
 create or replace function public.handle_new_member() returns trigger language plpgsql security definer set search_path=public as $$
 declare v_referrer_id uuid; v_referral_code text;
@@ -81,7 +81,7 @@ begin
  if p_status not in ('active','suspended') then raise exception 'Invalid status'; end if;
  if p_user_id=auth.uid() then raise exception 'You cannot suspend your own administrator account'; end if;
  if private.is_user_admin(p_user_id) then raise exception 'Administrator accounts are protected from suspension'; end if;
- update public.profiles set account_status=p_status,updated_at=now() where id=p_user_id;
+ update public.profiles set account_status=p_status,updated_at=now(),last_login_ip=coalesce((select s.ip::text from auth.sessions s where s.user_id=p_user_id order by s.created_at desc limit 1),last_login_ip) where id=p_user_id;
  if not found then raise exception 'User not found'; end if;
  if p_status='suspended' then update auth.users set banned_until=now()+interval '100 years' where id=p_user_id; delete from auth.sessions where user_id=p_user_id;
  else update auth.users set banned_until=null where id=p_user_id; end if;
@@ -113,7 +113,7 @@ declare result jsonb;
 begin
  if not private.is_admin() then raise exception 'Administrator access only'; end if;
  select jsonb_build_object('id',u.id,'uid',p.uid,'email',u.email,'full_name',p.full_name,'phone',p.phone,'date_of_birth',p.date_of_birth,'created_at',u.created_at,'last_sign_in_at',u.last_sign_in_at,
- 'last_ip',(select s.ip::text from auth.sessions s where s.user_id=u.id order by s.created_at desc limit 1),'kyc_status',p.kyc_status,'balance',coalesce(w.available_balance,0),
+ 'last_ip',coalesce((select s.ip::text from auth.sessions s where s.user_id=u.id order by s.created_at desc limit 1),p.last_login_ip),'kyc_status',p.kyc_status,'balance',coalesce(w.available_balance,0),
  'referral_count',(select count(*) from public.referrals r where r.referrer_id=u.id),
  'successful_withdrawals',(select count(*) from public.transactions t where t.user_id=u.id and t.type in ('profit_withdrawal','referral_withdrawal','withdrawal') and t.status='completed'),
  'total_withdrawn',(select coalesce(sum(t.amount),0) from public.transactions t where t.user_id=u.id and t.type in ('profit_withdrawal','referral_withdrawal','withdrawal') and t.status='completed'),
