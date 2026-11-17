@@ -2,10 +2,6 @@
 import {redirect} from "next/navigation";
 import {createClient,isSupabaseConfigured} from "./lib/supabase/server";
 
-function isAdministrator(user:{email?:string|null;app_metadata?:Record<string,unknown>}){
- const allowedEmails=(process.env.ADMIN_EMAILS||"").split(",").map(email=>email.trim().toLowerCase()).filter(Boolean);
- return user.app_metadata?.role==="admin"||Boolean(user.email&&allowedEmails.includes(user.email.toLowerCase()));
-}
 
 export async function signIn(formData:FormData){
  const password=String(formData.get("password")||"");if(password.length<6||password.length>20||!/[A-Za-z]/.test(password)||!/[0-9]/.test(password))return {error:"Password must be 6–20 characters and contain at least one letter and one number."};
@@ -14,7 +10,7 @@ export async function signIn(formData:FormData){
  const {error}=await supabase.auth.signInWithPassword({email:String(formData.get("email")||"").trim(),password:String(formData.get("password")||"")});
  if(error) return {error:error.message};
  const {data:{user}}=await supabase.auth.getUser();
- if(user){const {data:profile}=await supabase.from("profiles").select("account_status").eq("id",user.id).maybeSingle();if(profile?.account_status==="suspended"){await supabase.auth.signOut();return {error:"This account has been suspended. Please contact Terviq AI support."};}redirect(isAdministrator(user)?"/dashboard/admin":"/dashboard");}
+ if(user){const {data:profile}=await supabase.from("profiles").select("account_status").eq("id",user.id).maybeSingle();if(profile?.account_status==="suspended"){await supabase.auth.signOut();return {error:"This account has been suspended. Please contact Terviq AI support."};}const {data:isAdmin}=await supabase.rpc("is_terviq_admin");redirect(isAdmin===true?"/dashboard/admin":"/dashboard");}
  redirect("/dashboard");
 }
 export async function signUp(formData:FormData){
