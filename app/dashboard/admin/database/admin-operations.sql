@@ -20,7 +20,8 @@ create table if not exists public.kyc_submissions(
  status text not null default 'submitted' check(status in ('submitted','approved','rejected')),
  submitted_at timestamptz not null default now(),reviewed_at timestamptz,reviewed_by uuid references auth.users(id) on delete set null
 );
-create index if not exists kyc_submissions_user_idx on public.kyc_submissions(user_id,submitted_at desc);\ncreate index if not exists kyc_submissions_reviewed_by_idx on public.kyc_submissions(reviewed_by);
+create index if not exists kyc_submissions_user_idx on public.kyc_submissions(user_id,submitted_at desc);
+create index if not exists kyc_submissions_reviewed_by_idx on public.kyc_submissions(reviewed_by);
 alter table public.kyc_submissions enable row level security;
 revoke all on public.kyc_submissions from anon,authenticated;
 grant select,insert on public.kyc_submissions to authenticated;
