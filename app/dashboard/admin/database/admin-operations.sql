@@ -280,3 +280,15 @@ create or replace function public.acknowledge_kyc_alert(p_notification_id uuid) 
 revoke all on function public.acknowledge_kyc_alert(uuid) from public,anon;
 grant execute on function public.acknowledge_kyc_alert(uuid) to authenticated;
 notify pgrst,'reload schema';
+
+-- Evaluate administrator rights against current database metadata, not stale JWT app_metadata.
+create or replace function private.is_admin() returns boolean
+language sql stable security definer set search_path='' as $$
+ select coalesce((u.raw_app_meta_data->>'role')='admin',false)
+   or lower(coalesce(u.email,''))=any(array(select lower(jsonb_array_elements_text(s.value->'emails'))))
+ from auth.users u left join public.app_settings s on s.key='admin_emails'
+ where u.id=auth.uid()
+$$;
+revoke all on function private.is_admin() from public,anon;
+grant execute on function private.is_admin() to authenticated;
+notify pgrst,'reload schema';
