@@ -1,5 +1,0 @@
-import {CryptoCards} from "@/components/finance-pages";
-import {ArrowUpRight} from "lucide-react";
-import Link from "next/link";
-export const metadata={title:"Cryptocurrency Information",description:"Learn about the six cryptocurrency assets and networks listed in Terviq AI's supplied deposit model."};
-export default function Page(){return <><section className="page-hero"><div className="container"><span className="eyebrow">SUPPORTED DIGITAL ASSETS</span><h1>Cryptocurrency information.</h1><p>Explore the supported asset and network list supplied for the proposed Terviq AI deposit experience.</p></div></section><section className="section"><div className="container"><CryptoCards/><div className="fin-notice"><strong>Network safety:</strong><p>Always verify the selected cryptocurrency and network before sending funds. Sending assets through an unsupported network or to an incorrect address may result in permanent loss of funds. No deposit wallets are currently configured.</p></div><Link className="btn btn-green" href="/deposits">Deposit information <ArrowUpRight size={15}/></Link></div></section></>}

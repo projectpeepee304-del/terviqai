@@ -1,3 +1,0 @@
-import type {MetadataRoute} from "next";
-const routes=["","investment-plans","investment-selection","deposits","cryptocurrency","withdrawals","referrals","faq","dashboard","compliance","ways-to-earn","how-it-works","about","agricultural-ai","solutions","investors","industries","work","mission","contact","privacy","terms"];
-export default function sitemap():MetadataRoute.Sitemap{return routes.map(path=>({url:"https://terviqai.com"+(path?"/"+path:""),lastModified:new Date(),changeFrequency:"monthly",priority:path===""?1:(["investment-plans","deposits","withdrawals","referrals","faq"].includes(path)?0.9:0.65)}))}

@@ -1,6 +1,0 @@
-import Link from "next/link";
-import {ArrowLeft,Sprout,ShieldCheck,Users} from "lucide-react";
-import {SupabaseAuthForm} from "@/components/supabase-auth-form";
-import {Eyebrow} from "@/components/ui";
-export const metadata={title:"Create an account",description:"Join the Terviq AI member community."};
-export default function Signup(){return <section className="member-auth-page signup-layout"><div className="member-auth-card"><Link href="/" className="brand"><span className="brand-mark"><Sprout/></span><span>terviq<span className="brand-ai"> AI</span><small>OPPORTUNITY · INTELLIGENCE · GROWTH</small></span></Link><Eyebrow>CREATE YOUR ACCOUNT</Eyebrow><h1>Your next chapter starts here.</h1><p className="auth-lead">Create your member profile and get started with Terviq AI.</p><SupabaseAuthForm signup/><p className="auth-switch">Already have an account? <Link href="/login">Login</Link></p><Link className="auth-back" href="/"><ArrowLeft size={14}/> Back to website</Link></div><aside className="member-auth-aside"><div className="auth-aside-icon"><Users size={26}/></div><Eyebrow>MEMBER EXPERIENCE</Eyebrow><h2>One place to follow your journey.</h2><p>Manage your profile, investments and referrals from your personal dashboard.</p><div className="auth-aside-proof"><ShieldCheck/> Keep your password and verification codes private.</div></aside></section>}

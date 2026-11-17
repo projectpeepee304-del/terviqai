@@ -1,6 +1,0 @@
-import Link from "next/link";
-import {ArrowLeft,Sprout,Mail} from "lucide-react";
-import {Eyebrow} from "@/components/ui";
-import {PasswordResetForm} from "@/components/password-reset-form";
-export const metadata={title:"Reset password"};
-export default function ResetPassword(){return <section className="member-auth-page"><div className="member-auth-card"><Link href="/" className="brand"><span className="brand-mark"><Sprout/></span><span>terviq<span className="brand-ai"> AI</span><small>OPPORTUNITY · INTELLIGENCE · GROWTH</small></span></Link><Eyebrow>ACCOUNT RECOVERY</Eyebrow><h1>Reset your password.</h1><p className="auth-lead">Enter your account email and we’ll send you a secure password reset link.</p><PasswordResetForm/><p className="auth-switch">Remembered your password? <Link href="/login">Return to login</Link></p><Link className="auth-back" href="/login"><ArrowLeft size={14}/> Back to login</Link></div><aside className="member-auth-aside"><div className="auth-aside-icon"><Mail size={26}/></div><Eyebrow>ACCOUNT SECURITY</Eyebrow><h2>Secure access to your account.</h2><p>Use the reset link sent to your registered email address to choose a new password.</p></aside></section>}

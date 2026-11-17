@@ -19,7 +19,7 @@ export default async function DashboardLayout({children}:{children:React.ReactNo
    supabase.from("profiles").select("full_name,phone,date_of_birth,gender,uid,referral_code").eq("id",user.id).maybeSingle(),
    supabase.from("wallets").select("available_balance,referral_balance").eq("user_id",user.id).maybeSingle(),
    supabase.from("investments").select("principal_amount,profit_amount").eq("user_id",user.id).in("status",["active","matured"]),
-   supabase.from("referrals").select("commission_amount,status").eq("referrer_id",user.id),
+   supabase.from("referrals").select("id,commission_amount,status",{count:"exact"}).eq("referrer_id",user.id),
    supabase.from("transactions").select("id,type,amount,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100),
    supabase.from("notifications").select("id,title,body,created_at,read_at,requires_action,action_url").eq("user_id",user.id).order("created_at",{ascending:false}).limit(20)
   ]);
@@ -27,7 +27,7 @@ export default async function DashboardLayout({children}:{children:React.ReactNo
   availableBalance=Number(walletResult.data?.available_balance||0);referralBalance=Number(walletResult.data?.referral_balance||0);
   totalInvested=(investmentResult.data||[]).reduce((sum,row)=>sum+Number(row.principal_amount||0),0);
   currentProfit=(investmentResult.data||[]).reduce((sum,row)=>sum+Number(row.profit_amount||0),0);
-  friendsReferred=(referralResult.data||[]).length;qualifiedReferrals=(referralResult.data||[]).filter(row=>["qualified","credited","completed","paid"].includes(String(row.status||"").toLowerCase())).length;referralEarned=(referralResult.data||[]).filter(row=>row.status==="credited").reduce((sum,row)=>sum+Number(row.commission_amount||0),0);
+  friendsReferred=referralResult.count??(referralResult.data||[]).length;qualifiedReferrals=(referralResult.data||[]).filter(row=>["qualified","credited","completed","paid"].includes(String(row.status||"").toLowerCase())).length;referralEarned=(referralResult.data||[]).filter(row=>row.status==="credited").reduce((sum,row)=>sum+Number(row.commission_amount||0),0);
   transactions=(transactionResult.data||[]).map(row=>({...row,amount:Number(row.amount||0)}));
   notices=(noticeResult.data||[]).filter(row=>!row.requires_action||!row.read_at).map(row=>({...row,requires_action:!!row.requires_action,action_url:row.action_url||null}));
  }
