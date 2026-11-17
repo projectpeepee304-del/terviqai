@@ -26,7 +26,7 @@ export default async function DashboardLayout({children}:{children:React.ReactNo
   totalInvested=(investmentResult.data||[]).reduce((sum,row)=>sum+Number(row.principal_amount||0),0);
   currentProfit=(investmentResult.data||[]).reduce((sum,row)=>sum+Number(row.profit_amount||0),0);
   friendsReferred=(referralResult.data||[]).length;referralEarned=(referralResult.data||[]).filter(row=>row.status==="credited").reduce((sum,row)=>sum+Number(row.commission_amount||0),0);
-  transactions=(transactionResult.data||[]).map(row=>({...row,amount:Number(row.amount||0)}));\n  notices=(noticeResult.data||[]).map(row=>({...row,requires_action:!!row.requires_action,action_url:row.action_url||null}));
+  transactions=(transactionResult.data||[]).map(row=>({...row,amount:Number(row.amount||0)}));\n  notices=(noticeResult.data||[]).filter(row=>!row.read_at).map(row=>({...row,requires_action:!!row.requires_action,action_url:row.action_url||null}));
  }
  return <DashboardShell userName={userName} email={email} phone={phone} dateOfBirth={dateOfBirth} uid={uid} notices={notices} referralCode={referralCode} availableBalance={availableBalance} referralBalance={referralBalance} totalInvested={totalInvested} currentProfit={currentProfit} referralEarned={referralEarned} friendsReferred={friendsReferred} transactions={transactions}>{children}</DashboardShell>;
 }
