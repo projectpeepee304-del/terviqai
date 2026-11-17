@@ -292,3 +292,17 @@ $$;
 revoke all on function private.is_admin() from public,anon;
 grant execute on function private.is_admin() to authenticated;
 notify pgrst,'reload schema';
+
+-- Treat missing auth identity as a non-admin (never let NULL pass an IF NOT check).
+create or replace function private.is_admin() returns boolean
+language sql stable security definer set search_path='' as $$
+ select coalesce((
+   select coalesce((u.raw_app_meta_data->>'role')='admin',false)
+     or lower(coalesce(u.email,''))=any(array(select lower(jsonb_array_elements_text(s.value->'emails'))))
+   from auth.users u left join public.app_settings s on s.key='admin_emails'
+   where u.id=auth.uid()
+ ),false)
+$$;
+revoke all on function private.is_admin() from public,anon;
+grant execute on function private.is_admin() to authenticated;
+notify pgrst,'reload schema';
