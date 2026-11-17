@@ -17,9 +17,10 @@ declare global {
 export function SiteChrome({children}:{children:React.ReactNode}){
  const pathname=usePathname();
  const dashboard=pathname.startsWith("/dashboard");
+ const admin=pathname.startsWith("/dashboard/admin");
  const auth=pathname==="/login"||pathname==="/signup"||pathname==="/reset-password";
  useEffect(()=>{
-  if(auth){
+  if(auth||admin){
    window.Tawk_API?.hideWidget?.();
    return;
   }
@@ -40,6 +41,6 @@ export function SiteChrome({children}:{children:React.ReactNode}){
    script.dataset.terviqTawk="true";
    document.head.appendChild(script);
   }
- },[auth,dashboard]);
+ },[auth,admin,dashboard]);
  return <><a className="skip-link" href="#main-content">Skip to content</a>{!dashboard&&<div className={auth?"site-chrome-auth":""}><SiteHeader/></div>}{dashboard?<div id="main-content">{children}</div>:<main id="main-content" className={auth?"auth-route-main":""}>{children}</main>}{!dashboard&&<div className={auth?"site-chrome-auth":""}><SiteFooter/></div>}{!dashboard&&<BackTop/>}</>;
 }
