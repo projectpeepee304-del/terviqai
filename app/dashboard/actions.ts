@@ -42,3 +42,10 @@ export async function sendPasswordReset(formData:FormData){
  const email=String(formData.get("email")||"").trim(),supabase=await createClient();const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:(process.env.NEXT_PUBLIC_SITE_URL||"https://terviqai.com")+"/auth/callback?next=%2Freset-password%3Frecovery%3D1"});
  return error?{error:error.message}:{success:"If an account exists for this email, a password reset link has been sent."};
 }
+
+export async function markNotificationRead(id:string){
+ if(!isSupabaseConfigured())return {error:"Notifications are unavailable."};
+ const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();if(!user)return {error:"Please sign in again."};
+ const {error}=await supabase.from("notifications").update({read_at:new Date().toISOString()}).eq("id",id).eq("user_id",user.id).eq("requires_action",false);
+ return error?{error:error.message}:{success:true};
+}
